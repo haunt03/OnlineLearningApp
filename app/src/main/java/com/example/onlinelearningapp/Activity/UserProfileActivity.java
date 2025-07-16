@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem; // Add this import
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull; // Add this import
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,6 +20,7 @@ import com.example.onlinelearningapp.Adapter.EnrollmentAdapter;
 import com.example.onlinelearningapp.Entity.Course;
 import com.example.onlinelearningapp.Entity.User;
 import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
+import com.google.android.material.bottomnavigation.BottomNavigationView; // Add this import
 
 import java.util.ArrayList;
 
@@ -35,12 +38,15 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private int currentUserId = -1;
 
+    // Declare BottomNavigationView
+    private BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
 
-        // Initialize views - UPDATED TO MATCH YOUR XML IDs
+        // Initialize views
         tvUserName = findViewById(R.id.user_name);
         tvUserEmail = findViewById(R.id.user_email);
         btnLogout = findViewById(R.id.btnlogout);
@@ -53,6 +59,9 @@ public class UserProfileActivity extends AppCompatActivity {
 
         if (currentUserId == -1) {
             Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show();
+            // Redirect to LoginActivity instead of just finish() if user not logged in
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
             finish();
             return;
         }
@@ -63,6 +72,9 @@ public class UserProfileActivity extends AppCompatActivity {
             // Handle enrolled course click
             Toast.makeText(UserProfileActivity.this, "Enrolled Course: " + course.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();
             // TODO: Navigate to CourseDetailsActivity for enrolled course
+            // Example: Intent intent = new Intent(UserProfileActivity.this, CourseDetailsActivity.class);
+            // intent.putExtra("COURSE_ID", course.getCourseId());
+            // startActivity(intent);
         });
         rvEnrolledCourses.setAdapter(enrollmentAdapter);
 
@@ -88,10 +100,10 @@ public class UserProfileActivity extends AppCompatActivity {
             }
         });
 
-        // Set click listeners
+        // Set click listeners for existing buttons
         btnLogout.setOnClickListener(v -> {
             HomePageActivity.logout(UserProfileActivity.this);
-            finish();
+            finish(); // Finish UserProfileActivity after logout
         });
 
         btnChangePassword.setOnClickListener(v -> {
@@ -99,6 +111,45 @@ public class UserProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(UserProfileActivity.this, ChangeProfileActivity.class);
             startActivity(intent);
         });
+
+        // --- Start of BottomNavigationView additions ---
+
+        // 1. Initialize BottomNavigationView
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // 2. Set up the item selection listener for BottomNavigationView
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.nav_home) {
+                    Intent intent = new Intent(UserProfileActivity.this, HomePageActivity.class);
+                    // Use flags to manage the activity stack: Clear activities on top and bring HomePageActivity to front
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.nav_courses) {
+                    Intent intent = new Intent(UserProfileActivity.this, CourseListActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.nav_my_courses) {
+                    // Navigate to MyCoursesActivity (if not already there)
+                    Intent intent = new Intent(UserProfileActivity.this, MyCoursesActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // To avoid creating multiple MyCoursesActivity instances
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.nav_profile) {
+                    // Already in UserProfileActivity, do nothing or show a Toast
+                    Toast.makeText(UserProfileActivity.this, "You are already on your profile.", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // --- End of BottomNavigationView additions ---
     }
 
     @Override
@@ -108,6 +159,11 @@ public class UserProfileActivity extends AppCompatActivity {
         // This ensures updated name/password changes are reflected
         if (currentUserId != -1) {
             userProfileViewModel.loadUserProfile(currentUserId);
+        }
+        // Ensure the "Profile" item is selected on BottomNavigationView when returning to UserProfileActivity
+        // Only select if bottomNavigationView has been initialized
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_profile);
         }
     }
 }
