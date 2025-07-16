@@ -83,6 +83,12 @@ public class Repository {
         return courseDao.getCourseById(courseId);
     }
 
+    // ADD THIS METHOD
+    public LiveData<List<Course>> getAllCourses() {
+        return courseDao.getAllCourses();
+    }
+
+
     // --- Lesson operations ---
     public LiveData<List<Lesson>> getTop5NewestLessons() {
         return lessonDao.getTop5NewestLessons();
@@ -109,7 +115,6 @@ public class Repository {
         AppDatabase.databaseWriteExecutor.execute(() -> enrollmentDao.insertEnrollment(enrollment));
     }
 
-    // ADD THIS MISSING METHOD
     public LiveData<List<Enrollment>> getEnrollmentsByUserId(int userId) {
         return enrollmentDao.getEnrollmentsByUserId(userId);
     }
