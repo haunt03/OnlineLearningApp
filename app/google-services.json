@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "922005097226",
+    "project_id": "onlinelearningapp-73896",
+    "storage_bucket": "onlinelearningapp-73896.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922005097226:android:1b0f72e574d73ee3e9c8f3",
+        "android_client_info": {
+          "package_name": "com.example.onlinelearningapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh20rNMAyQAKuKCGITC4hy5FUWCSUhRjA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
