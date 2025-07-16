@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.HomePageActivity">
+    tools:context=".Activity.HomePageActivity">
 
     <!-- Content area (can be a FrameLayout for Fragments later) -->
     <LinearLayout
@@ -18,21 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tv_welcome_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Welcome, Guest!"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btn_login_register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="-40dp"
-            android:text="Login / Register" />
 
         <TextView
             android:id="@+id/tv_top_courses_title"
@@ -53,7 +38,7 @@
             android:id="@+id/tv_latest_lessons_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Latest 5 Lessons"
+            android:text="New Lessons"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="24dp" />
