@@ -16,12 +16,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
 import com.example.onlinelearningapp.Adapter.LessonAdapter;
 import com.example.onlinelearningapp.Entity.Course;
 import com.example.onlinelearningapp.Entity.Lesson;
 import com.example.onlinelearningapp.ViewModel.HomeViewModel;
+import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -33,18 +35,19 @@ public class HomePageActivity extends AppCompatActivity {
     private Button btnLoginRegister;
     private RecyclerView rvTopCourses;
     private RecyclerView rvLatestLessons;
-    private BottomNavigationView bottomNavigationView; // Declare BottomNavigationView
+    private BottomNavigationView bottomNavigationView;
 
     private CourseAdapter courseAdapter;
     private LessonAdapter lessonAdapter;
     private HomeViewModel homeViewModel;
+    private UserProfileViewModel userProfileViewModel;
 
     private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "OnlineLearningAppPrefs";
-    private static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
+    public static final String PREF_NAME = "OnlineLearningAppPrefs";
+    public static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
     public static final String KEY_LOGGED_IN_USER_NAME = "loggedInUserName";
 
-    private int currentUserId = -1; // -1 indicates no user logged in
+    private int currentUserId = -1;
     private String currentUserName = "Guest";
 
     @Override
@@ -57,22 +60,19 @@ public class HomePageActivity extends AppCompatActivity {
         btnLoginRegister = findViewById(R.id.btn_login_register);
         rvTopCourses = findViewById(R.id.rv_top_courses);
         rvLatestLessons = findViewById(R.id.rv_latest_lessons);
-        bottomNavigationView = findViewById(R.id.bottom_navigation); // Initialize BottomNavigationView
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        // Setup RecyclerViews
+        // Initialize ViewModels
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
+
+        // Setup RecyclerViews (call after ViewModel init)
         setupRecyclerViews();
 
-        // Initialize ViewModel
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
-        // Observe LiveData from ViewModel
-        observeViewModel();
-
         // Set click listeners for login/register/profile/logout button
-        // This button will now primarily handle the "Profile" navigation from the top right
         btnLoginRegister.setOnClickListener(v -> {
             if (currentUserId == -1) {
                 Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
@@ -84,57 +84,29 @@ public class HomePageActivity extends AppCompatActivity {
         });
 
         // Set up BottomNavigationView listener
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_home) {
-                    // Already on Home, do nothing or refresh
-                    Toast.makeText(HomePageActivity.this, "Home", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (itemId == R.id.nav_courses) {
-                    // Navigate to CourseListActivity
-                    Toast.makeText(HomePageActivity.this, "Courses List", Toast.LENGTH_SHORT).show();
-                    // TODO: Create CourseListActivity and navigate
-                        Intent intent = new Intent(HomePageActivity.this, CourseListActivity.class);
-                     startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.nav_my_courses) {
-                    // Navigate to MyCoursesActivity (Enrolled Courses)
-                    if (currentUserId == -1) {
-                        Toast.makeText(HomePageActivity.this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(HomePageActivity.this, "My Courses", Toast.LENGTH_SHORT).show();
-                        // TODO: Create MyCoursesActivity and navigate
-                        Intent intent = new Intent(HomePageActivity.this, MyCoursesActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                } else if (itemId == R.id.nav_profile) {
-                    // Navigate to UserProfileActivity
-                    if (currentUserId == -1) {
-                        Toast.makeText(HomePageActivity.this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(HomePageActivity.this, "Profile", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
+        setupBottomNavigationView(R.id.nav_home);
+
+        // Observe LiveData from ViewModels AFTER setupRecyclerViews to ensure adapters are ready
+        checkLoginStatus();
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>()); // Clear if no user
+        }
+        observeViewModel();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkLoginStatus();
-        // Ensure the correct item is selected on BottomNavigationView when returning to HomePage
+        // Load enrollments for the current user when activity resumes
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            // If no user logged in, clear enrolled courses in adapter
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
+        }
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
@@ -144,7 +116,7 @@ public class HomePageActivity extends AppCompatActivity {
 
         if (currentUserId != -1) {
             tvWelcomeMessage.setText("Welcome, " + currentUserName + "!");
-            btnLoginRegister.setText("Profile"); // Change button text to "Profile"
+            btnLoginRegister.setText("Profile");
         } else {
             tvWelcomeMessage.setText("Welcome, Guest!");
             btnLoginRegister.setText("Login / Register");
@@ -154,30 +126,53 @@ public class HomePageActivity extends AppCompatActivity {
     private void setupRecyclerViews() {
         // Top Courses RecyclerView
         rvTopCourses.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        courseAdapter = new CourseAdapter(new ArrayList<>(), course -> {
-            // Handle course click
-            if (currentUserId == -1) {
-                Toast.makeText(HomePageActivity.this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(HomePageActivity.this, "Course: " + course.getTitle() + " clicked! (ID: " + course.getCourseId() + ")", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to CourseDetailsActivity, passing course.getCourseId()
-            }
-        });
+        courseAdapter = new CourseAdapter(new ArrayList<>(),
+                course -> {
+                    // Handle course click -> navigate to CourseDetailsActivity
+                    if (currentUserId == -1) {
+                        Toast.makeText(HomePageActivity.this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(HomePageActivity.this, CourseDetailsActivity.class);
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
+                        startActivity(intent);
+                    }
+                },
+                (course, mode) -> {
+                    // Handle Enroll button click from ALL_COURSES mode
+                    if (mode == CourseAdapter.AdapterMode.ALL_COURSES) {
+                        if (currentUserId != -1) {
+                            Enrollment newEnrollment = new Enrollment(currentUserId, course.getCourseId());
+                            userProfileViewModel.enrollCourse(newEnrollment);
+                            Toast.makeText(HomePageActivity.this, "Enrolled in " + course.getTitle(), Toast.LENGTH_SHORT).show();
+                            userProfileViewModel.loadEnrollments(currentUserId); // Refresh enrollments to update UI
+                        } else {
+                            Toast.makeText(HomePageActivity.this, "Please login to enroll in courses.", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                        }
+                    }
+                },
+                currentUserId,
+                CourseAdapter.AdapterMode.ALL_COURSES // Set mode for this adapter
+        );
         rvTopCourses.setAdapter(courseAdapter);
 
         // Latest Lessons RecyclerView
         rvLatestLessons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         lessonAdapter = new LessonAdapter(new ArrayList<>(), lesson -> {
-            // Handle lesson click
+            // Handle lesson click -> navigate to LessonDetailsActivity
             if (currentUserId == -1) {
                 Toast.makeText(HomePageActivity.this, "Please login to view lesson details.", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
                 startActivity(intent);
             } else {
-                Toast.makeText(HomePageActivity.this, "Lesson: " + lesson.getTitle() + " clicked! (ID: " + lesson.getLessonId() + ")", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to LessonDetailsActivity, passing lesson.getLessonId()
+                Intent intent = new Intent(HomePageActivity.this, LessonDetailsActivity.class);
+                intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_ID, lesson.getLessonId());
+                intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_TITLE, lesson.getTitle());
+                startActivity(intent);
             }
         });
         rvLatestLessons.setAdapter(lessonAdapter);
@@ -195,9 +190,51 @@ public class HomePageActivity extends AppCompatActivity {
                 lessonAdapter.setLessons(lessons);
             }
         });
+
+        // Observe user's enrollments to update CourseAdapter
+        userProfileViewModel.getEnrollments().observe(this, enrollments -> {
+            if (enrollments != null) {
+                courseAdapter.setEnrolledCourseIds(enrollments);
+            }
+        });
     }
 
-    // This method can be called from UserProfileActivity to log out
+    private void setupBottomNavigationView(int selectedItemId) {
+        bottomNavigationView.setSelectedItemId(selectedItemId);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Intent intent = null;
+
+            if (itemId == R.id.nav_home) {
+                if (!(this instanceof HomePageActivity)) {
+                    intent = new Intent(HomePageActivity.this, HomePageActivity.class);
+                }
+            } else if (itemId == R.id.nav_courses) {
+                intent = new Intent(HomePageActivity.this, CourseListActivity.class);
+            } else if (itemId == R.id.nav_my_courses) {
+                if (currentUserId == -1) {
+                    Toast.makeText(HomePageActivity.this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                } else {
+                    intent = new Intent(HomePageActivity.this, MyCoursesActivity.class);
+                }
+            } else if (itemId == R.id.nav_profile) {
+                if (currentUserId == -1) {
+                    Toast.makeText(HomePageActivity.this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                } else {
+                    intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
+                }
+            }
+
+            if (intent != null) {
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+            return true;
+        });
+    }
+
     public static void logout(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -205,7 +242,6 @@ public class HomePageActivity extends AppCompatActivity {
         editor.remove(KEY_LOGGED_IN_USER_NAME);
         editor.apply();
 
-        // Navigate back to HomePageActivity and clear back stack
         Intent intent = new Intent(context, HomePageActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);

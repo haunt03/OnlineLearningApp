@@ -30,5 +30,8 @@ public interface LessonDao {
 
     @Query("SELECT * FROM Lessons")
     LiveData<List<Lesson>> getAllLessons();
+
+    @Query("DELETE FROM Lessons")
+    void deleteAllLessons();
 }
 

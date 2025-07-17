@@ -1,6 +1,9 @@
 package com.example.onlinelearningapp.ViewModel;
 
 import android.app.Application;
+import android.util.Log;
+import android.util.Pair;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -16,73 +19,91 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserProfileViewModel extends AndroidViewModel {
+    private static final String TAG = "UserProfileViewModel"; // Define TAG for logging
+
     private Repository repository;
     private LiveData<User> currentUser;
-    private LiveData<List<Enrollment>> userEnrollments;
-
-    // MediatorLiveData to combine user enrollments with course details
+    private MutableLiveData<List<Enrollment>> enrollments = new MutableLiveData<>(new ArrayList<>());
     private MediatorLiveData<List<Course>> enrolledCoursesWithDetails = new MediatorLiveData<>();
+
+    private MutableLiveData<Pair<Integer, Integer>> enrollmentStatusTrigger = new MutableLiveData<>();
+    private LiveData<Enrollment> liveEnrollmentStatus;
+
 
     public UserProfileViewModel(Application application) {
         super(application);
+        Log.d(TAG, "Constructor: UserProfileViewModel is being created.");
         repository = new Repository(application);
+
+        // Initialize liveEnrollmentStatus using Transformations.switchMap
+        // This LiveData will react to changes in enrollmentStatusTrigger
+        liveEnrollmentStatus = Transformations.switchMap(enrollmentStatusTrigger, input -> {
+            Log.d(TAG, "SwitchMap: Triggered with input: " + input);
+            if (input != null && input.first != null && input.second != null) {
+                Log.d(TAG, "SwitchMap: Fetching enrollment for userId: " + input.first + ", courseId: " + input.second);
+                return repository.getEnrollment(input.first, input.second);
+            }
+            // Ensure a non-null LiveData is always returned, even if its value is null
+            MutableLiveData<Enrollment> emptyLiveData = new MutableLiveData<>(null);
+            Log.d(TAG, "SwitchMap: Returning empty LiveData (input was null/invalid).");
+            return emptyLiveData;
+        });
+        Log.d(TAG, "Constructor: liveEnrollmentStatus initialized. Is it null? " + (liveEnrollmentStatus == null));
     }
 
     public void loadUserProfile(int userId) {
+        Log.d(TAG, "loadUserProfile: Loading profile for userId: " + userId);
         currentUser = repository.getUserById(userId);
-        userEnrollments = repository.getEnrollmentsByUserId(userId);
-
-        // Observe userEnrollments and fetch course details for each enrollment
-        enrolledCoursesWithDetails.addSource(userEnrollments, enrollments -> {
-            if (enrollments != null && !enrollments.isEmpty()) {
-                List<LiveData<Course>> courseLiveDataList = new ArrayList<>();
-                for (Enrollment enrollment : enrollments) {
-                    courseLiveDataList.add(repository.getCourseById(enrollment.getCourseId()));
-                }
-                // Combine all LiveData<Course> into a single LiveData<List<Course>>
-                // This is a simplified approach. For a more robust solution,
-                // you might need a custom LiveData or combine multiple sources.
-                // For now, we'll iterate and update.
-                combineCourseDetails(courseLiveDataList);
-            } else {
-                enrolledCoursesWithDetails.postValue(new ArrayList<>()); // No enrollments
-            }
-        });
+        loadEnrolledCoursesWithDetails(userId);
     }
-
-    private void combineCourseDetails(List<LiveData<Course>> courseLiveDataList) {
-        List<Course> courses = new ArrayList<>();
-        final int[] loadedCount = {0}; // To track how many courses have been loaded
-
-        if (courseLiveDataList.isEmpty()) {
-            enrolledCoursesWithDetails.postValue(courses);
-            return;
-        }
-
-        for (LiveData<Course> courseLiveData : courseLiveDataList) {
-            enrolledCoursesWithDetails.addSource(courseLiveData, course -> {
-                if (course != null) {
-                    courses.add(course);
-                }
-                loadedCount[0]++;
-                if (loadedCount[0] == courseLiveDataList.size()) {
-                    enrolledCoursesWithDetails.postValue(courses);
-                    // Remove sources to prevent redundant updates if not needed
-                    for (LiveData<Course> ld : courseLiveDataList) {
-                        enrolledCoursesWithDetails.removeSource(ld);
-                    }
-                }
-            });
-        }
-    }
-
 
     public LiveData<User> getCurrentUser() {
         return currentUser;
+    }
+
+    public void loadEnrollments(int userId) {
+        Log.d(TAG, "loadEnrollments: Loading enrollments for userId: " + userId);
+        LiveData<List<Enrollment>> newSource = repository.getEnrollmentsByUserId(userId);
+        newSource.observeForever(newEnrollments -> {
+            Log.d(TAG, "loadEnrollments: Observed new enrollments. Count: " + (newEnrollments != null ? newEnrollments.size() : "null"));
+            enrollments.postValue(newEnrollments);
+        });
+    }
+
+    public LiveData<List<Enrollment>> getEnrollments() {
+        return enrollments;
+    }
+
+    public void checkEnrollmentStatus(int userId, int courseId) {
+        Log.d(TAG, "checkEnrollmentStatus: Setting trigger for userId: " + userId + ", courseId: " + courseId);
+        enrollmentStatusTrigger.setValue(new Pair<>(userId, courseId));
+    }
+
+    public LiveData<Enrollment> getEnrollmentStatus() {
+        Log.d(TAG, "getEnrollmentStatus: Called. Is liveEnrollmentStatus null? " + (liveEnrollmentStatus == null));
+        return liveEnrollmentStatus;
+    }
+
+    public void enrollCourse(Enrollment enrollment) {
+        Log.d(TAG, "enrollCourse: Enrolling userId: " + enrollment.getUserId() + ", courseId: " + enrollment.getCourseId());
+        repository.insertEnrollment(enrollment);
+    }
+
+    public void dropOutCourse(int userId, int courseId) {
+        Log.d(TAG, "dropOutCourse: Dropping out userId: " + userId + ", courseId: " + courseId);
+        repository.deleteEnrollment(userId, courseId);
+    }
+
+    private void loadEnrolledCoursesWithDetails(int userId) {
+        Log.d(TAG, "loadEnrolledCoursesWithDetails: Loading enrolled courses with details for userId: " + userId);
+        LiveData<List<Course>> source = repository.getEnrolledCoursesWithDetails(userId);
+        enrolledCoursesWithDetails.addSource(source, courses -> {
+            Log.d(TAG, "loadEnrolledCoursesWithDetails: Observed new course details. Count: " + (courses != null ? courses.size() : "null"));
+            enrolledCoursesWithDetails.setValue(courses);
+        });
     }
 
     public LiveData<List<Course>> getEnrolledCoursesWithDetails() {
         return enrolledCoursesWithDetails;
     }
 }
-

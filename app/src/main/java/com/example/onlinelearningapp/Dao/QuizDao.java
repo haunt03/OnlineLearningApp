@@ -24,4 +24,7 @@ public interface QuizDao {
 
     @Query("SELECT * FROM Quizzes WHERE LessonID = :lessonId")
     LiveData<List<Quiz>> getQuizzesByLessonId(int lessonId);
+
+    @Query("DELETE FROM Quizzes")
+    void deleteAllQuizzes();
 }

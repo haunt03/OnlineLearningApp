@@ -6,6 +6,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
+// Assuming Question entity exists and Option is linked to it
 @Entity(tableName = "Options",
         foreignKeys = @ForeignKey(entity = Question.class,
                 parentColumns = "QuestionID",
@@ -14,39 +15,39 @@ import androidx.room.PrimaryKey;
 public class Option {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "OptionID")
-    private int optionId;
+    private int optionID; // Make sure this matches your column name
 
     @ColumnInfo(name = "QuestionID")
-    private int questionId;
+    private int questionID;
 
     @ColumnInfo(name = "OptionText")
     private String optionText;
 
     @ColumnInfo(name = "IsCorrect")
-    private boolean isCorrect; // SQLite stores BOOLEAN as INTEGER (0 or 1)
+    private boolean isCorrect;
 
     // Constructor
-    public Option(int questionId, String optionText, boolean isCorrect) {
-        this.questionId = questionId;
+    public Option(int questionID, String optionText, boolean isCorrect) {
+        this.questionID = questionID;
         this.optionText = optionText;
         this.isCorrect = isCorrect;
     }
 
     // Getters and Setters
-    public int getOptionId() {
-        return optionId;
+    public int getOptionID() { // Ensure this getter exists and matches case
+        return optionID;
     }
 
-    public void setOptionId(int optionId) {
-        this.optionId = optionId;
+    public void setOptionID(int optionID) {
+        this.optionID = optionID;
     }
 
-    public int getQuestionId() {
-        return questionId;
+    public int getQuestionID() {
+        return questionID;
     }
 
-    public void setQuestionId(int questionId) {
-        this.questionId = questionId;
+    public void setQuestionID(int questionID) {
+        this.questionID = questionID;
     }
 
     public String getOptionText() {
@@ -57,7 +58,7 @@ public class Option {
         this.optionText = optionText;
     }
 
-    public boolean isCorrect() {
+    public boolean isCorrect() { // Standard getter for boolean is 'is' or 'get'
         return isCorrect;
     }
 
@@ -65,4 +66,3 @@ public class Option {
         isCorrect = correct;
     }
 }
-

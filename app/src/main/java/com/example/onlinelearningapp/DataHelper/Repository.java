@@ -26,7 +26,9 @@ import com.example.onlinelearningapp.Entity.QuizResult;
 import com.example.onlinelearningapp.Entity.User;
 
 import java.util.List;
-
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 public class Repository {
     private UserDao userDao;
     private CourseDao courseDao;
@@ -83,7 +85,6 @@ public class Repository {
         return courseDao.getCourseById(courseId);
     }
 
-    // ADD THIS METHOD
     public LiveData<List<Course>> getAllCourses() {
         return courseDao.getAllCourses();
     }
@@ -115,13 +116,26 @@ public class Repository {
         AppDatabase.databaseWriteExecutor.execute(() -> enrollmentDao.insertEnrollment(enrollment));
     }
 
+    // New method to delete enrollment
+    public void deleteEnrollment(int userId, int courseId) {
+        AppDatabase.databaseWriteExecutor.execute(() -> enrollmentDao.deleteEnrollment(userId, courseId));
+    }
+
     public LiveData<List<Enrollment>> getEnrollmentsByUserId(int userId) {
         return enrollmentDao.getEnrollmentsByUserId(userId);
+    }
+
+    public LiveData<List<Course>> getEnrolledCoursesWithDetails(int userId) {
+        return enrollmentDao.getEnrolledCoursesWithDetails(userId);
     }
 
     // --- Quiz operations ---
     public LiveData<List<Quiz>> getQuizzesByLessonId(int lessonId) {
         return quizDao.getQuizzesByLessonId(lessonId);
+    }
+
+    public LiveData<Quiz> getQuizById(int quizId) {
+        return quizDao.getQuizById(quizId);
     }
 
     // --- Question operations ---
@@ -134,9 +148,19 @@ public class Repository {
         return optionDao.getOptionsByQuestionId(questionId);
     }
 
+    public List<Option> getOptionsByQuestionIdSync(int questionId) throws ExecutionException, InterruptedException {
+        Callable<List<Option>> callable = () -> optionDao.getOptionsByQuestionIdSync(questionId);
+        Future<List<Option>> future = AppDatabase.databaseWriteExecutor.submit(callable);
+        return future.get();
+    }
+
     // --- Answer operations ---
     public void insertAnswer(Answer answer) {
         AppDatabase.databaseWriteExecutor.execute(() -> answerDao.insertAnswer(answer));
+    }
+
+    public LiveData<List<Answer>> getAnswersByUserIdAndQuizId(int userId, int quizId) {
+        return answerDao.getAnswersByUserIdAndQuizId(userId, quizId);
     }
 
     // --- QuizResult operations ---
@@ -157,3 +181,4 @@ public class Repository {
         AppDatabase.databaseWriteExecutor.execute(() -> progressDao.updateProgress(progress));
     }
 }
+
