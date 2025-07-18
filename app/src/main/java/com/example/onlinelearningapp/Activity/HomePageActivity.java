@@ -134,7 +134,7 @@ public class HomePageActivity extends AppCompatActivity {
         rvLatestLessons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         lessonAdapter = new LessonAdapter(new ArrayList<>(), lesson -> {
             if (currentUserId == -1) {
-                Toast.makeText(this, "Vui lòng đăng nhập để xem chi tiết bài học.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please login to view lesson details.", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(this, LoginActivity.class));
             } else {
                 Intent intent = new Intent(this, LessonDetailsActivity.class);
