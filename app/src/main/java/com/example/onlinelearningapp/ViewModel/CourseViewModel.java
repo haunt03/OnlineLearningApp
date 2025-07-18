@@ -18,10 +18,16 @@ public class CourseViewModel extends AndroidViewModel {
     public CourseViewModel(Application application) {
         super(application);
         repository = new Repository(application);
-        allCourses = repository.getAllCourses(); // We need to add this method to Repository
+        allCourses = repository.getAllCourses(); // Khởi tạo LiveData từ Repository
     }
 
+    // Phương thức để lấy tất cả các khóa học
     public LiveData<List<Course>> getAllCourses() {
         return allCourses;
     }
+
+    // Bạn có thể thêm các phương thức khác liên quan đến Course tại đây, ví dụ:
+    // public LiveData<Course> getCourseDetails(int courseId) {
+    //     return repository.getCourseById(courseId);
+    // }
 }

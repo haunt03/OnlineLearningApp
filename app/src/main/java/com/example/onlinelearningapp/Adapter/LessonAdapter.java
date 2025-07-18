@@ -17,13 +17,13 @@ import java.util.List;
 public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonViewHolder> {
 
     private List<Lesson> lessons;
-    private OnLessonClickListener listener;
+    private OnLessonClick listener;
 
-    public interface OnLessonClickListener {
+    public interface OnLessonClick {
         void onLessonClick(Lesson lesson);
     }
 
-    public LessonAdapter(List<Lesson> lessons, OnLessonClickListener listener) {
+    public LessonAdapter(List<Lesson> lessons, OnLessonClick listener) {
         this.lessons = lessons;
         this.listener = listener;
     }

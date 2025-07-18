@@ -23,4 +23,11 @@ public interface OptionDao {
 
     @Query("SELECT * FROM Options WHERE QuestionID = :questionId")
     LiveData<List<Option>> getOptionsByQuestionId(int questionId);
+
+    // ĐÃ SỬA: Phương thức đồng bộ trả về List<Option> trực tiếp
+    @Query("SELECT * FROM Options WHERE QuestionID = :questionId")
+    List<Option> getOptionsByQuestionIdSync(int questionId); // Đây là phương thức đồng bộ, không phải LiveData
+
+    @Query("DELETE FROM Options")
+    void deleteAllOptions();
 }

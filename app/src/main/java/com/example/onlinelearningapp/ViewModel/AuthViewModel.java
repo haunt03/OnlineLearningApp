@@ -8,6 +8,9 @@ import androidx.lifecycle.Observer;
 
 import com.example.onlinelearningapp.DataHelper.Repository;
 import com.example.onlinelearningapp.Entity.User;
+import com.example.onlinelearningapp.utils.EmailSender;
+
+import java.security.SecureRandom;
 
 public class AuthViewModel extends AndroidViewModel {
     private Repository repository;
@@ -23,16 +26,17 @@ public class AuthViewModel extends AndroidViewModel {
     private MutableLiveData<String> _resetPasswordMessage = new MutableLiveData<>();
     public LiveData<String> resetPasswordMessage = _resetPasswordMessage;
 
-    // LiveData to observe a specific user by ID (for ChangeProfileActivity)
     private LiveData<User> userByIdLiveData;
+
+    // private FirebaseAuth mAuth; // Remove if not using Firebase Auth at all
 
     public AuthViewModel(Application application) {
         super(application);
         repository = new Repository(application);
+        // mAuth = FirebaseAuth.getInstance(); // Remove if not using Firebase Auth at all
     }
 
     public LiveData<User> getUserById(int userId) {
-        // This method will be observed by ChangeProfileActivity to get current user data
         if (userByIdLiveData == null || userByIdLiveData.getValue() == null || userByIdLiveData.getValue().getUserId() != userId) {
             userByIdLiveData = repository.getUserById(userId);
         }
@@ -50,7 +54,6 @@ public class AuthViewModel extends AndroidViewModel {
                     _loggedInUser.postValue(null);
                     _loginMessage.postValue("Invalid email or password.");
                 }
-                // Remove the observer to prevent multiple calls
                 repository.getUserByEmailAndPassword(email, password).removeObserver(this);
             }
         });
@@ -73,31 +76,56 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     public void resetPassword(String email) {
+        // First, check if the email exists in our local Room DB
         repository.getUserByEmail(email).observeForever(new Observer<User>() {
             @Override
             public void onChanged(User user) {
                 if (user != null) {
-                    _resetPasswordMessage.postValue("Password reset link sent to your email (simulated).");
+                    // User found, generate a new password
+                    String newPassword = generateRandomPassword(8); // Generate an 8-character password
+
+                    // Update the user's password in Room DB
+                    user.setPassword(newPassword);
+                    repository.updateUser(user);
+
+                    // Send the new password to the user's email using JavaMail API
+                    EmailSender.sendResetPasswordEmail(email, newPassword, (success, message) -> {
+                        _resetPasswordMessage.postValue(message);
+                    });
                 } else {
-                    _resetPasswordMessage.postValue("Email not found.");
+                    _resetPasswordMessage.postValue("Email not found in our records.");
                 }
+                // Remove the observer after checking
                 repository.getUserByEmail(email).removeObserver(this);
             }
         });
     }
 
-    // This method will be called from ChangeProfileActivity to update user details
     public void updateUser(User user) {
         repository.updateUser(user);
-        // After update, if the updated user is the logged-in user, update _loggedInUser
         if (_loggedInUser.getValue() != null && _loggedInUser.getValue().getUserId() == user.getUserId()) {
             _loggedInUser.postValue(user);
         }
     }
 
+    // Helper method to generate a random password
+    private String generateRandomPassword(int length) {
+        String CHAR_LOWER = "abcdefghijklmnopqrstuvwxyz";
+        String CHAR_UPPER = CHAR_LOWER.toUpperCase();
+        String NUMBER = "0123456789";
+        String OTHER_CHAR = "!@#$%&*_+-="; // Optional special characters
+
+        String PASSWORD_CHARS = CHAR_LOWER + CHAR_UPPER + NUMBER + OTHER_CHAR;
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(PASSWORD_CHARS.charAt(random.nextInt(PASSWORD_CHARS.length())));
+        }
+        return sb.toString();
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
-        // Clean up observers if necessary, though LiveData generally handles this with LifecycleOwner
     }
 }

@@ -23,4 +23,7 @@ public interface QuestionDao {
 
     @Query("SELECT * FROM Questions WHERE QuizID = :quizId")
     LiveData<List<Question>> getQuestionsByQuizId(int quizId);
+
+    @Query("DELETE FROM Questions")
+    void deleteAllQuestions();
 }

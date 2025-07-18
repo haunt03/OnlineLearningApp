@@ -3,10 +3,10 @@ package com.example.onlinelearningapp.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable; // Add this import
-import android.text.TextWatcher; // Add this import
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MenuItem;
-import android.widget.EditText; // Add this import
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,31 +15,31 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
 import com.example.onlinelearningapp.Entity.Course;
 import com.example.onlinelearningapp.ViewModel.CourseViewModel;
+import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
-import java.util.List; // Add this import
+import java.util.List;
 
 public class CourseListActivity extends AppCompatActivity {
 
     private RecyclerView rvAllCourses;
     private CourseAdapter courseAdapter;
     private CourseViewModel courseViewModel;
+    private UserProfileViewModel userProfileViewModel;
+    private BottomNavigationView bottomNavigationView;
 
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "OnlineLearningAppPrefs";
     private static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
     private int currentUserId = -1;
 
-    private BottomNavigationView bottomNavigationView;
-
-    // New: EditText for search
     private EditText etSearchCourse;
-    // New: List to hold all courses, so we can filter from it
     private List<Course> allCourses = new ArrayList<>();
 
     @Override
@@ -47,99 +47,62 @@ public class CourseListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_list);
 
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
         rvAllCourses = findViewById(R.id.rv_all_courses);
-        etSearchCourse = findViewById(R.id.et_search_course); // Initialize the new search EditText
+        etSearchCourse = findViewById(R.id.et_search_course);
 
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
 
+        courseViewModel = new ViewModelProvider(this).get(CourseViewModel.class);
+        userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
+
         rvAllCourses.setLayoutManager(new LinearLayoutManager(this));
-        courseAdapter = new CourseAdapter(new ArrayList<>(), course -> {
-            // Handle course click
-            if (currentUserId == -1) {
-                Toast.makeText(CourseListActivity.this, "Please log in to view course details.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(CourseListActivity.this, LoginActivity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(CourseListActivity.this, "Course: " + course.getTitle() + " clicked!", Toast.LENGTH_SHORT).show();
-                // TODO: Navigate to CourseDetailsActivity, passing course ID if needed
-                // Example: Intent intent = new Intent(CourseListActivity.this, CourseDetailsActivity.class);
-                // intent.putExtra("COURSE_ID", course.getCourseId());
-                // startActivity(intent);
-            }
-        });
+
+        courseAdapter = new CourseAdapter(new ArrayList<>(),
+                course -> {
+                    if (currentUserId == -1) {
+                        Toast.makeText(this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(this, LoginActivity.class));
+                    } else {
+                        Intent intent = new Intent(this, CourseDetailsActivity.class);
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
+                        startActivity(intent);
+                    }
+                },
+                (course, mode) -> {
+                    if (mode == CourseAdapter.AdapterMode.ALL_COURSES) {
+                        if (currentUserId != -1) {
+                            Enrollment newEnrollment = new Enrollment(currentUserId, course.getCourseId());
+                            userProfileViewModel.enrollCourse(newEnrollment);
+                            Toast.makeText(this, "Enrolled in " + course.getTitle(), Toast.LENGTH_SHORT).show();
+                            userProfileViewModel.loadEnrollments(currentUserId);
+                        } else {
+                            Toast.makeText(this, "Please login to enroll in courses.", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, LoginActivity.class));
+                        }
+                    }
+                },
+                currentUserId,
+                CourseAdapter.AdapterMode.ALL_COURSES
+        );
         rvAllCourses.setAdapter(courseAdapter);
 
-        courseViewModel = new ViewModelProvider(this).get(CourseViewModel.class);
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
+        }
 
-        // Observe LiveData from ViewModel
-        courseViewModel.getAllCourses().observe(this, courses -> {
-            if (courses != null) {
-                // Store the full list of courses
-                allCourses.clear();
-                allCourses.addAll(courses);
-                // Display all courses initially
-                courseAdapter.setCourses(courses);
-            }
-        });
+        observeViewModel();
+        setupBottomNavigationView(R.id.nav_courses);
 
-        // --- New: Setup TextWatcher for search bar ---
         etSearchCourse.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Not used
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Not used
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
                 filterCourses(s.toString());
-            }
-        });
-        // --- End of new search bar setup ---
-
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-
-                if (itemId == R.id.nav_home) {
-                    Intent intent = new Intent(CourseListActivity.this, HomePageActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.nav_courses) {
-                    Toast.makeText(CourseListActivity.this, "You are already on the course list.", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (itemId == R.id.nav_my_courses) {
-                    if (currentUserId == -1) {
-                        Toast.makeText(CourseListActivity.this, "Please log in to view your courses.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(CourseListActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(CourseListActivity.this, MyCoursesActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                } else if (itemId == R.id.nav_profile) {
-                    if (currentUserId == -1) {
-                        Toast.makeText(CourseListActivity.this, "Please log in to view your profile.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(CourseListActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(CourseListActivity.this, "Profile", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(CourseListActivity.this, UserProfileActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                }
-                return false;
             }
         });
     }
@@ -147,24 +110,82 @@ public class CourseListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        bottomNavigationView.setSelectedItemId(R.id.nav_courses);
+        currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
+        }
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.nav_courses);
+        }
     }
 
-    // New: Method to filter courses based on search query
+    private void observeViewModel() {
+        courseViewModel.getAllCourses().observe(this, courses -> {
+            if (courses != null) {
+                allCourses.clear();
+                allCourses.addAll(courses);
+                courseAdapter.setCourses(courses);
+            }
+        });
+
+        userProfileViewModel.getEnrollments().observe(this, enrollments -> {
+            if (enrollments != null) {
+                courseAdapter.setEnrolledCourseIds(enrollments);
+            }
+        });
+    }
+
     private void filterCourses(String query) {
         List<Course> filteredList = new ArrayList<>();
         if (query.isEmpty()) {
-            filteredList.addAll(allCourses); // If query is empty, show all courses
+            filteredList.addAll(allCourses);
         } else {
             String lowerCaseQuery = query.toLowerCase();
             for (Course course : allCourses) {
-                // Filter by course title or description (you can add more fields)
                 if (course.getTitle().toLowerCase().contains(lowerCaseQuery) ||
-                        course.getDescription().toLowerCase().contains(lowerCaseQuery)) {
+                    course.getDescription().toLowerCase().contains(lowerCaseQuery)) {
                     filteredList.add(course);
                 }
             }
         }
-        courseAdapter.setCourses(filteredList); // Update RecyclerView with filtered list
+        courseAdapter.setCourses(filteredList);
+    }
+
+    private void setupBottomNavigationView(int selectedItemId) {
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(selectedItemId);
+            bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+                Intent intent = null;
+
+                if (itemId == R.id.nav_home) {
+                    intent = new Intent(this, HomePageActivity.class);
+                } else if (itemId == R.id.nav_courses) {
+                    Toast.makeText(this, "You are already on the course list.", Toast.LENGTH_SHORT).show();
+                } else if (itemId == R.id.nav_my_courses) {
+                    if (currentUserId == -1) {
+                        Toast.makeText(this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
+                        intent = new Intent(this, LoginActivity.class);
+                    } else {
+                        intent = new Intent(this, MyCoursesActivity.class);
+                    }
+                } else if (itemId == R.id.nav_profile) {
+                    if (currentUserId == -1) {
+                        Toast.makeText(this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
+                        intent = new Intent(this, LoginActivity.class);
+                    } else {
+                        intent = new Intent(this, UserProfileActivity.class);
+                    }
+                }
+
+                if (intent != null) {
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+                }
+                return true;
+            });
+        }
     }
 }

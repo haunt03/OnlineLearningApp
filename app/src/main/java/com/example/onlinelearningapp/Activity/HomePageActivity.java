@@ -5,33 +5,29 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-// import android.view.View; // Giữ lại nếu các view khác được sử dụng, nếu không thì xóa
-// import android.widget.Button; // Xóa import này nếu không có Button nào khác được sử dụng
-// import android.widget.TextView; // Xóa import này nếu không có TextView nào khác được sử dụng
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
 import com.example.onlinelearningapp.Adapter.LessonAdapter;
 import com.example.onlinelearningapp.Entity.Course;
 import com.example.onlinelearningapp.Entity.Lesson;
 import com.example.onlinelearningapp.ViewModel.HomeViewModel;
+import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomePageActivity extends AppCompatActivity {
-
-    // Xóa các khai báo này
-    // private TextView tvWelcomeMessage;
-    // private Button btnLoginRegister;
 
     private RecyclerView rvTopCourses;
     private RecyclerView rvLatestLessons;
@@ -40,10 +36,11 @@ public class HomePageActivity extends AppCompatActivity {
     private CourseAdapter courseAdapter;
     private LessonAdapter lessonAdapter;
     private HomeViewModel homeViewModel;
+    private UserProfileViewModel userProfileViewModel;
 
     private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "OnlineLearningAppPrefs";
-    private static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
+    public static final String PREF_NAME = "OnlineLearningAppPrefs";
+    public static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
     public static final String KEY_LOGGED_IN_USER_NAME = "loggedInUserName";
 
     private int currentUserId = -1;
@@ -54,126 +51,96 @@ public class HomePageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
 
-        // Xóa các khởi tạo này
-        // tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
-        // btnLoginRegister = findViewById(R.id.btn_login_register);
+        // Set up Toolbar with title
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Online Learning App");
+        }
 
         rvTopCourses = findViewById(R.id.rv_top_courses);
         rvLatestLessons = findViewById(R.id.rv_latest_lessons);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Khởi tạo SharedPreferences
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        // Thiết lập RecyclerViews
-        setupRecyclerViews();
-
-        // Khởi tạo ViewModel
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
 
-        // Quan sát LiveData từ ViewModel
+        setupRecyclerViews();
+        setupBottomNavigationView(R.id.nav_home);
         observeViewModel();
+        checkLoginStatus();
 
-        // Xóa lắng nghe sự kiện click cho btnLoginRegister vì nút đã bị xóa
-        // btnLoginRegister.setOnClickListener(v -> {
-        //     if (currentUserId == -1) {
-        //         Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-        //         startActivity(intent);
-        //     } else {
-        //         Intent intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
-        //         startActivity(intent);
-        //     }
-        // });
-
-        // Thiết lập lắng nghe BottomNavigationView
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.nav_home) {
-                    Toast.makeText(HomePageActivity.this, "Home", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (itemId == R.id.nav_courses) {
-                    Toast.makeText(HomePageActivity.this, "Courses List", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(HomePageActivity.this, CourseListActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.nav_my_courses) {
-                    if (currentUserId == -1) {
-                        Toast.makeText(HomePageActivity.this, "Vui lòng đăng nhập để xem các khóa học của bạn.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(HomePageActivity.this, "Khóa học của tôi", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, MyCoursesActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                } else if (itemId == R.id.nav_profile) {
-                    if (currentUserId == -1) {
-                        Toast.makeText(HomePageActivity.this, "Vui lòng đăng nhập để xem hồ sơ của bạn.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(HomePageActivity.this, "Hồ sơ", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
-                        startActivity(intent);
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkLoginStatus();
+
+        if (currentUserId != -1) {
+            userProfileViewModel.loadEnrollments(currentUserId);
+        } else {
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
+        }
+
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
     private void checkLoginStatus() {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
         currentUserName = sharedPreferences.getString(KEY_LOGGED_IN_USER_NAME, "Guest");
-
-        // Xóa các dòng này vì chúng cập nhật TextView và Button đã bị xóa
-        // if (currentUserId != -1) {
-        //     tvWelcomeMessage.setText("Welcome, " + currentUserName + "!");
-        //     btnLoginRegister.setText("Profile");
-        // } else {
-        //     tvWelcomeMessage.setText("Welcome, Guest!");
-        //     btnLoginRegister.setText("Login / Register");
-        // }
+        // No need to update TextView or Button (they are removed from layout)
     }
 
     private void setupRecyclerViews() {
-        // RecyclerView các khóa học hàng đầu
         rvTopCourses.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        courseAdapter = new CourseAdapter(new ArrayList<>(), course -> {
-            // Xử lý click vào khóa học
-            if (currentUserId == -1) {
-                Toast.makeText(HomePageActivity.this, "Vui lòng đăng nhập để xem chi tiết khóa học.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(HomePageActivity.this, "Khóa học: " + course.getTitle() + " đã click! (ID: " + course.getCourseId() + ")", Toast.LENGTH_SHORT).show();
-                // TODO: Điều hướng đến CourseDetailsActivity, truyền course.getCourseId()
-            }
-        });
+        courseAdapter = new CourseAdapter(new ArrayList<>(),
+                course -> {
+                    if (currentUserId == -1) {
+                        Toast.makeText(this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(this, LoginActivity.class));
+                    } else {
+                        Intent intent = new Intent(this, CourseDetailsActivity.class);
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
+                        intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
+                        startActivity(intent);
+                    }
+                },
+                (course, mode) -> {
+                    if (mode == CourseAdapter.AdapterMode.ALL_COURSES) {
+                        if (currentUserId != -1) {
+                            Enrollment newEnrollment = new Enrollment(currentUserId, course.getCourseId());
+                            userProfileViewModel.enrollCourse(newEnrollment);
+                            Toast.makeText(this, "Enrolled in " + course.getTitle(), Toast.LENGTH_SHORT).show();
+                            userProfileViewModel.loadEnrollments(currentUserId);
+                        } else {
+                            Toast.makeText(this, "Please login to enroll in courses.", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, LoginActivity.class));
+                        }
+                    }
+                },
+                currentUserId,
+                CourseAdapter.AdapterMode.ALL_COURSES
+        );
         rvTopCourses.setAdapter(courseAdapter);
 
-        // RecyclerView các bài học mới nhất
         rvLatestLessons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         lessonAdapter = new LessonAdapter(new ArrayList<>(), lesson -> {
-            // Xử lý click vào bài học
             if (currentUserId == -1) {
-                Toast.makeText(HomePageActivity.this, "Vui lòng đăng nhập để xem chi tiết bài học.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                startActivity(intent);
+                Toast.makeText(this, "Vui lòng đăng nhập để xem chi tiết bài học.", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, LoginActivity.class));
             } else {
-                Toast.makeText(HomePageActivity.this, "Bài học: " + lesson.getTitle() + " đã click! (ID: " + lesson.getLessonId() + ")", Toast.LENGTH_SHORT).show();
-                // TODO: Điều hướng đến LessonDetailsActivity, truyền lesson.getLessonId()
+                Intent intent = new Intent(this, LessonDetailsActivity.class);
+                intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_ID, lesson.getLessonId());
+                intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_TITLE, lesson.getTitle());
+                startActivity(intent);
             }
         });
         rvLatestLessons.setAdapter(lessonAdapter);
@@ -190,6 +157,48 @@ public class HomePageActivity extends AppCompatActivity {
             if (lessons != null) {
                 lessonAdapter.setLessons(lessons);
             }
+        });
+
+        userProfileViewModel.getEnrollments().observe(this, enrollments -> {
+            if (enrollments != null) {
+                courseAdapter.setEnrolledCourseIds(enrollments);
+            }
+        });
+    }
+
+    private void setupBottomNavigationView(int selectedItemId) {
+        bottomNavigationView.setSelectedItemId(selectedItemId);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Intent intent = null;
+
+            if (itemId == R.id.nav_home) {
+                if (!(this instanceof HomePageActivity)) {
+                    intent = new Intent(this, HomePageActivity.class);
+                }
+            } else if (itemId == R.id.nav_courses) {
+                intent = new Intent(this, CourseListActivity.class);
+            } else if (itemId == R.id.nav_my_courses) {
+                if (currentUserId == -1) {
+                    Toast.makeText(this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(this, LoginActivity.class);
+                } else {
+                    intent = new Intent(this, MyCoursesActivity.class);
+                }
+            } else if (itemId == R.id.nav_profile) {
+                if (currentUserId == -1) {
+                    Toast.makeText(this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(this, LoginActivity.class);
+                } else {
+                    intent = new Intent(this, UserProfileActivity.class);
+                }
+            }
+
+            if (intent != null) {
+                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
+            }
+            return true;
         });
     }
 

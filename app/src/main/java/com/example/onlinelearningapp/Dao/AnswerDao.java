@@ -18,12 +18,16 @@ public interface AnswerDao {
     @Update
     void updateAnswer(Answer answer);
 
-    @Query("SELECT * FROM Answers WHERE AnswerID = :answerId")
-    LiveData<Answer> getAnswerById(int answerId);
-
     @Query("SELECT * FROM Answers WHERE UserID = :userId AND QuestionID = :questionId")
-    LiveData<Answer> getUserAnswerForQuestion(int userId, int questionId);
+    LiveData<Answer> getAnswer(int userId, int questionId);
 
-    @Query("SELECT * FROM Answers WHERE UserID = :userId")
-    LiveData<List<Answer>> getAnswersByUserId(int userId);
+    // ĐÃ THÊM: Phương thức để lấy tất cả câu trả lời của người dùng cho một quiz cụ thể
+    @Query("SELECT A.* FROM Answers A JOIN Questions Q ON A.QuestionID = Q.QuestionID WHERE A.UserID = :userId AND Q.QuizID = :quizId")
+    LiveData<List<Answer>> getAnswersByUserIdAndQuizId(int userId, int quizId);
+
+    @Query("DELETE FROM Answers")
+    void deleteAllAnswers();
 }
+
+
+
