@@ -14,6 +14,9 @@ import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.ViewModel.AuthViewModel;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class RegisterActivity extends AppCompatActivity {
 
     private TextInputEditText etName, etEmail, etPassword, etConfirmPassword;
@@ -91,6 +94,25 @@ public class RegisterActivity extends AppCompatActivity {
             etPassword.requestFocus();
             return;
         }
+
+        // --- NEW PASSWORD VALIDATIONS ---
+        // Check for at least one uppercase letter
+        Pattern uppercasePattern = Pattern.compile(".*[A-Z].*");
+        if (!uppercasePattern.matcher(password).matches()) {
+            etPassword.setError("Password must contain at least one uppercase letter.");
+            etPassword.requestFocus();
+            return;
+        }
+
+        // Check for at least one special character
+        Pattern specialCharPattern = Pattern.compile(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
+        if (!specialCharPattern.matcher(password).matches()) {
+            etPassword.setError("Password must contain at least one special character (e.g., !@#$%^&*).");
+            etPassword.requestFocus();
+            return;
+        }
+        // --- END NEW PASSWORD VALIDATIONS ---
+
 
         // Confirm password validation
         if (TextUtils.isEmpty(confirmPassword)) {

@@ -96,9 +96,9 @@ public abstract class AppDatabase extends RoomDatabase {
                 // We don't delete answers/quiz results/progress here, as they are user-specific and linked
 
                 // 👤 Sample Users
-                long userId1 = userDao.insertUser(new User("HauNT", "haunt@gmail.com", "123456", 0)); // Learner
-                long userId2 = userDao.insertUser(new User("ThaoPT", "thaopt@gmail.com", "123456", 0)); // Learner
-                long userId3 = userDao.insertUser(new User("HungLV", "hunglv@gmail.com", "123456", 0)); // Learner
+                long userId1 = userDao.insertUser(new User("HauNT", "haunt@gmail.com", "Abcd1234@", 0)); // Learner
+                long userId2 = userDao.insertUser(new User("ThaoPT", "thaopt@gmail.com", "Abcd1234@", 0)); // Learner
+                long userId3 = userDao.insertUser(new User("HungLV", "hunglv@gmail.com", "Abcd1234@", 0)); // Learner
                 long userId4 = userDao.insertUser(new User("Admin", "admin123@gmail.com", "admin123", 1)); // Admin
 
                 // 📘 Sample Courses (10 courses for children's English)
