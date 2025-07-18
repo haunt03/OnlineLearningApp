@@ -78,7 +78,7 @@ public class UserProfileActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(UserProfileActivity.this, "User data not found.", Toast.LENGTH_SHORT).show();
                 // Optionally, log out if user data is unexpectedly missing
-                HomePageActivity.logout(UserProfileActivity.this);
+                HomePageActivity.logout(UserProfileActivity.this); // Gọi phương thức static
             }
         });
 
@@ -90,7 +90,7 @@ public class UserProfileActivity extends AppCompatActivity {
 
         // Set click listeners
         btnLogout.setOnClickListener(v -> {
-            HomePageActivity.logout(UserProfileActivity.this);
+            HomePageActivity.logout(UserProfileActivity.this); // Gọi phương thức static
             finish();
         });
 

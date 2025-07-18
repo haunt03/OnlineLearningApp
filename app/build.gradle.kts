@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation ("com.google.android.material:material:1.12.0")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
 
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")

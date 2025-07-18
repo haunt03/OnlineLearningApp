@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.TakeQuizActivity"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".Activity.TakeQuizActivity">
 
+    <!-- Quiz Title -->
     <TextView
         android:id="@+id/tv_quiz_title"
         android:layout_width="0dp"
@@ -14,10 +15,12 @@
         android:text="Quiz Title"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Timer -->
     <TextView
         android:id="@+id/tv_timer"
         android:layout_width="wrap_content"
@@ -27,9 +30,10 @@
         android:textStyle="bold"
         android:textColor="@android:color/holo_red_dark"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_quiz_title" />
+        app:layout_constraintTop_toBottomOf="@id/tv_quiz_title"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Question Number -->
     <TextView
         android:id="@+id/tv_question_number"
         android:layout_width="wrap_content"
@@ -37,9 +41,10 @@
         android:text="Question 1/5"
         android:textSize="16sp"
         android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_timer" />
+        app:layout_constraintTop_toBottomOf="@id/tv_timer"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Question Text -->
     <TextView
         android:id="@+id/tv_question_text"
         android:layout_width="0dp"
@@ -48,18 +53,20 @@
         android:textSize="20sp"
         android:textStyle="italic"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_question_number"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_question_number" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Options -->
     <RadioGroup
         android:id="@+id/rg_options"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/tv_question_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_question_text">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <RadioButton
             android:id="@+id/rb_option_a"
@@ -92,19 +99,32 @@
             android:text="Option D"
             android:textSize="18sp"
             android:padding="8dp" />
-
     </RadioGroup>
 
+    <!-- Question Navigation RecyclerView (Moved here) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_question_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/rg_options"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_question_navigation" />
+
+    <!-- Navigation Buttons -->
     <LinearLayout
         android:id="@+id/navigation_buttons_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/rv_question_navigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rg_options">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btn_submit_quiz">
 
         <Button
             android:id="@+id/btn_previous_question"
@@ -119,40 +139,34 @@
             android:layout_height="wrap_content"
             android:text="Next"
             android:layout_marginStart="8dp" />
-
     </LinearLayout>
 
+    <!-- Submit Button -->
     <Button
         android:id="@+id/btn_submit_quiz"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         android:text="Submit Quiz"
-        android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/navigation_buttons_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/navigation_buttons_layout" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_exit_quiz" />
 
+    <!-- Exit Quiz Button -->
     <Button
         android:id="@+id/btn_exit_quiz"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Exit Quiz"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_submit_quiz" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_question_navigation"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:layout_marginTop="16dp"
+        android:text="Exit Review"
+        android:backgroundTint="@android:color/darker_gray"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:itemCount="5"
-        tools:listitem="@layout/item_question_nav_button" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

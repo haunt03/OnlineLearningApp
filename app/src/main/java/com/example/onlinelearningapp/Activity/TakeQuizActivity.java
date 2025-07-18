@@ -22,7 +22,6 @@ import com.example.onlinelearningapp.Adapter.QuestionNavigationAdapter;
 import com.example.onlinelearningapp.Entity.Answer;
 import com.example.onlinelearningapp.Entity.Option;
 import com.example.onlinelearningapp.Entity.Question;
-import com.example.onlinelearningapp.Entity.Quiz;
 import com.example.onlinelearningapp.Entity.QuizResult;
 import com.example.onlinelearningapp.ViewModel.QuizViewModel;
 
@@ -141,7 +140,8 @@ public class TakeQuizActivity extends AppCompatActivity {
 
     private void setupQuizMode() {
         tvTimer.setVisibility(View.VISIBLE);
-        btnSubmitQuiz.setVisibility(View.VISIBLE); // Initially visible, will be controlled by displayQuestion
+        // Nút submit sẽ luôn hiển thị trong chế độ quiz
+        btnSubmitQuiz.setVisibility(View.VISIBLE);
         btnExitQuiz.setVisibility(View.GONE);
 
         // Set the listener for RadioGroup
@@ -236,6 +236,7 @@ public class TakeQuizActivity extends AppCompatActivity {
 
     private void setupQuestionNavigation() {
         rvQuestionNavigation.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        // Khởi tạo QuestionNavigationAdapter với tổng số câu hỏi, listener, trạng thái đã trả lời và index câu hỏi hiện tại
         questionNavigationAdapter = new QuestionNavigationAdapter(questions.size(), position -> {
             if (!isReviewMode) {
                 saveCurrentAnswer(); // Save current answer before navigating
@@ -303,11 +304,6 @@ public class TakeQuizActivity extends AppCompatActivity {
         // The UI update for options and selection will happen in the quizViewModel.getOptions() observer.
         quizViewModel.loadOptionsForQuestion(currentQuestion.getQuestionId());
 
-        // Re-attach the listener after UI updates are done in updateQuestionOptionsUI()
-        // This is crucial to ensure user interactions are captured correctly.
-        // However, we need to re-attach it AFTER the options are set and selection is restored.
-        // So, it will be re-attached inside updateQuestionOptionsUI().
-
         // Update navigation adapter to highlight the current question
         questionNavigationAdapter.updateCurrentQuestionIndex(currentQuestionIndex);
 
@@ -316,7 +312,8 @@ public class TakeQuizActivity extends AppCompatActivity {
             // Quiz Mode
             btnPreviousQuestion.setVisibility(currentQuestionIndex == 0 ? View.GONE : View.VISIBLE); // Hide Previous on first question
             btnNextQuestion.setVisibility(currentQuestionIndex == questions.size() - 1 ? View.GONE : View.VISIBLE); // Hide Next on last question
-            btnSubmitQuiz.setVisibility(currentQuestionIndex == questions.size() - 1 ? View.VISIBLE : View.GONE); // Show Submit only on last question
+            // Đặt nút Submit luôn hiển thị trong chế độ quiz
+            btnSubmitQuiz.setVisibility(View.VISIBLE);
             btnExitQuiz.setVisibility(View.GONE); // Hide Exit in quiz mode
         } else {
             // Review Mode

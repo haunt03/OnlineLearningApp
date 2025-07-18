@@ -9,8 +9,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- New colors for quiz -->
-    <color name="green_answered">#8BC34A</color> <!-- Light Green: Màu cho câu đã trả lời đúng hoặc đã chọn -->
-    <color name="red_incorrect">#F44336</color>   <!-- Red: Màu cho câu trả lời sai của người dùng khi review -->
-    <color name="blue_current_question">#2196F3</color> <!-- Blue: Màu cho câu hỏi hiện tại -->
+    <!-- New colors for quiz app -->
+    <color name="blue_current_question">#ADD8E6</color> <!-- Light Blue for current question -->
+    <color name="green_answered">#90EE90</color> <!-- Light Green for answered question -->
+    <color name="red_incorrect">#FF6347</color> <!-- Tomato Red for incorrect answer -->
+    <color name="light_gray_unanswered">#E0E0E0</color> <!-- Light Gray for unanswered question -->
 </resources>

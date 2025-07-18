@@ -1,10 +1,10 @@
+// app/src/main/java/com/example/onlinelearningapp/Adapter/QuestionNavigationAdapter.java
 package com.example.onlinelearningapp.Adapter;
 
-import android.graphics.Color; // Import Color
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.TextView; // Đã đổi lại thành TextView
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,79 +15,83 @@ import java.util.List;
 
 public class QuestionNavigationAdapter extends RecyclerView.Adapter<QuestionNavigationAdapter.ViewHolder> {
 
-    private int numberOfQuestions;
+    private int totalQuestions;
     private OnQuestionClickListener listener;
-    private List<Boolean> answeredStatus; // True if answered, false if not
-    private int currentQuestionIndex; // To highlight the current question
+    private List<Boolean> answeredStatus; // true if answered, false if not
+    private int currentQuestionIndex; // Index of the currently displayed question
 
     public interface OnQuestionClickListener {
         void onQuestionClick(int position);
     }
 
-    public QuestionNavigationAdapter(int numberOfQuestions, OnQuestionClickListener listener, List<Boolean> answeredStatus, int currentQuestionIndex) {
-        this.numberOfQuestions = numberOfQuestions;
+    public QuestionNavigationAdapter(int totalQuestions, OnQuestionClickListener listener, List<Boolean> answeredStatus, int currentQuestionIndex) {
+        this.totalQuestions = totalQuestions;
         this.listener = listener;
         this.answeredStatus = answeredStatus;
         this.currentQuestionIndex = currentQuestionIndex;
     }
 
+    // Call this method from TakeQuizActivity to update answered status
     public void updateAnsweredStatus(List<Boolean> newStatus) {
         this.answeredStatus = newStatus;
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // Refresh the RecyclerView to reflect changes
     }
 
+    // Call this method from TakeQuizActivity to update the current question highlight
     public void updateCurrentQuestionIndex(int newIndex) {
+        int oldIndex = this.currentQuestionIndex;
         this.currentQuestionIndex = newIndex;
-        notifyDataSetChanged();
+        // Optimize updates: only notify changed items
+        if (oldIndex != RecyclerView.NO_POSITION) {
+            notifyItemChanged(oldIndex); // Update old position (to remove highlight)
+        }
+        if (newIndex != RecyclerView.NO_POSITION) {
+            notifyItemChanged(newIndex); // Update new position (to add highlight)
+        }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_question_nav_button, parent, false);
+        // Inflate item_question_navigation.xml
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_question_navigation, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.btnQuestionNav.setText(String.valueOf(position + 1)); // Question numbers start from 1
+        holder.tvQuestionNavNumber.setText(String.valueOf(position + 1)); // Display question number (1-based)
 
-        // Set background color based on answered status
-        if (answeredStatus != null && position < answeredStatus.size()) {
-            if (answeredStatus.get(position)) {
-                // Sử dụng getResources().getColorStateList() cho các phiên bản Android mới hơn
-                holder.btnQuestionNav.setBackgroundTintList(holder.itemView.getContext().getResources().getColorStateList(R.color.green_answered, null)); // Green for answered
-            } else {
-                holder.btnQuestionNav.setBackgroundTintList(holder.itemView.getContext().getResources().getColorStateList(android.R.color.white, null)); // White for not answered
-            }
+        // Apply the custom background drawable to the TextView's background
+        holder.tvQuestionNavNumber.setBackgroundResource(R.drawable.question_navigation_item_background);
+
+        // Set state for the TextView's background drawable
+        // These states will trigger the corresponding item in the selector
+        holder.tvQuestionNavNumber.setSelected(position == currentQuestionIndex); // Highlight current question
+        holder.tvQuestionNavNumber.setActivated(answeredStatus.get(position)); // Mark as answered
+
+        // Adjust text color based on state for better visibility
+        // Text color should be white for selected/answered, black for unanswered
+        if (position == currentQuestionIndex || answeredStatus.get(position)) {
+            holder.tvQuestionNavNumber.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.white, null));
         } else {
-            holder.btnQuestionNav.setBackgroundTintList(holder.itemView.getContext().getResources().getColorStateList(android.R.color.white, null)); // Default white
+            holder.tvQuestionNavNumber.setTextColor(holder.itemView.getContext().getResources().getColor(R.color.black, null));
         }
 
-        // Highlight current question
-        if (position == currentQuestionIndex) {
-            holder.btnQuestionNav.setBackgroundTintList(holder.itemView.getContext().getResources().getColorStateList(R.color.blue_current_question, null)); // Blue for current
-        }
-
-
-        holder.btnQuestionNav.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onQuestionClick(position);
-            }
-        });
+        holder.itemView.setOnClickListener(v -> listener.onQuestionClick(position));
     }
 
     @Override
     public int getItemCount() {
-        return numberOfQuestions;
+        return totalQuestions;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        Button btnQuestionNav;
+        TextView tvQuestionNavNumber; // Đã đổi lại thành TextView
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            btnQuestionNav = itemView.findViewById(R.id.btn_question_nav);
+            tvQuestionNavNumber = itemView.findViewById(R.id.tv_question_nav_number); // Tìm TextView
         }
     }
 }
