@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,8 +29,6 @@ import java.util.List;
 
 public class HomePageActivity extends AppCompatActivity {
 
-    private TextView tvWelcomeMessage;
-    private Button btnLoginRegister;
     private RecyclerView rvTopCourses;
     private RecyclerView rvLatestLessons;
     private BottomNavigationView bottomNavigationView;
@@ -63,121 +58,86 @@ public class HomePageActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("Online Learning App");
         }
 
-        // Initialize views
-        tvWelcomeMessage = findViewById(R.id.tv_welcome_message);
-        btnLoginRegister = findViewById(R.id.btn_login_register);
         rvTopCourses = findViewById(R.id.rv_top_courses);
         rvLatestLessons = findViewById(R.id.rv_latest_lessons);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
 
-        // Initialize ViewModels
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
 
-        // Setup RecyclerViews (call after ViewModel init)
         setupRecyclerViews();
-
-        // Set click listeners for login/register/profile/logout button
-        btnLoginRegister.setOnClickListener(v -> {
-            if (currentUserId == -1) {
-                Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // Set up BottomNavigationView listener
         setupBottomNavigationView(R.id.nav_home);
-
-        // Observe LiveData from ViewModels AFTER setupRecyclerViews to ensure adapters are ready
+        observeViewModel();
         checkLoginStatus();
+
         if (currentUserId != -1) {
             userProfileViewModel.loadEnrollments(currentUserId);
         } else {
-            courseAdapter.setEnrolledCourseIds(new ArrayList<>()); // Clear if no user
+            courseAdapter.setEnrolledCourseIds(new ArrayList<>());
         }
-        observeViewModel();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkLoginStatus();
-        // Load enrollments for the current user when activity resumes
+
         if (currentUserId != -1) {
             userProfileViewModel.loadEnrollments(currentUserId);
         } else {
-            // If no user logged in, clear enrolled courses in adapter
             courseAdapter.setEnrolledCourseIds(new ArrayList<>());
         }
+
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
     private void checkLoginStatus() {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
         currentUserName = sharedPreferences.getString(KEY_LOGGED_IN_USER_NAME, "Guest");
-
-        if (currentUserId != -1) {
-            tvWelcomeMessage.setText("Welcome, " + currentUserName + "!");
-            btnLoginRegister.setText("Profile");
-        } else {
-            tvWelcomeMessage.setText("Welcome, Guest!");
-            btnLoginRegister.setText("Login / Register");
-        }
+        // No need to update TextView or Button (they are removed from layout)
     }
 
     private void setupRecyclerViews() {
-        // Top Courses RecyclerView
         rvTopCourses.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         courseAdapter = new CourseAdapter(new ArrayList<>(),
                 course -> {
-                    // Handle course click -> navigate to CourseDetailsActivity
                     if (currentUserId == -1) {
-                        Toast.makeText(HomePageActivity.this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                        startActivity(intent);
+                        Toast.makeText(this, "Please login to view course details.", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(this, LoginActivity.class));
                     } else {
-                        Intent intent = new Intent(HomePageActivity.this, CourseDetailsActivity.class);
+                        Intent intent = new Intent(this, CourseDetailsActivity.class);
                         intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
                         intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
                         startActivity(intent);
                     }
                 },
                 (course, mode) -> {
-                    // Handle Enroll button click from ALL_COURSES mode
                     if (mode == CourseAdapter.AdapterMode.ALL_COURSES) {
                         if (currentUserId != -1) {
                             Enrollment newEnrollment = new Enrollment(currentUserId, course.getCourseId());
                             userProfileViewModel.enrollCourse(newEnrollment);
-                            Toast.makeText(HomePageActivity.this, "Enrolled in " + course.getTitle(), Toast.LENGTH_SHORT).show();
-                            userProfileViewModel.loadEnrollments(currentUserId); // Refresh enrollments to update UI
+                            Toast.makeText(this, "Enrolled in " + course.getTitle(), Toast.LENGTH_SHORT).show();
+                            userProfileViewModel.loadEnrollments(currentUserId);
                         } else {
-                            Toast.makeText(HomePageActivity.this, "Please login to enroll in courses.", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                            startActivity(intent);
+                            Toast.makeText(this, "Please login to enroll in courses.", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(this, LoginActivity.class));
                         }
                     }
                 },
                 currentUserId,
-                CourseAdapter.AdapterMode.ALL_COURSES // Set mode for this adapter
+                CourseAdapter.AdapterMode.ALL_COURSES
         );
         rvTopCourses.setAdapter(courseAdapter);
 
-        // Latest Lessons RecyclerView
         rvLatestLessons.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         lessonAdapter = new LessonAdapter(new ArrayList<>(), lesson -> {
-            // Handle lesson click -> navigate to LessonDetailsActivity
             if (currentUserId == -1) {
-                Toast.makeText(HomePageActivity.this, "Please login to view lesson details.", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(HomePageActivity.this, LoginActivity.class);
-                startActivity(intent);
+                Toast.makeText(this, "Vui lòng đăng nhập để xem chi tiết bài học.", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, LoginActivity.class));
             } else {
-                Intent intent = new Intent(HomePageActivity.this, LessonDetailsActivity.class);
+                Intent intent = new Intent(this, LessonDetailsActivity.class);
                 intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_ID, lesson.getLessonId());
                 intent.putExtra(LessonDetailsActivity.EXTRA_LESSON_TITLE, lesson.getTitle());
                 startActivity(intent);
@@ -199,7 +159,6 @@ public class HomePageActivity extends AppCompatActivity {
             }
         });
 
-        // Observe user's enrollments to update CourseAdapter
         userProfileViewModel.getEnrollments().observe(this, enrollments -> {
             if (enrollments != null) {
                 courseAdapter.setEnrolledCourseIds(enrollments);
@@ -215,23 +174,23 @@ public class HomePageActivity extends AppCompatActivity {
 
             if (itemId == R.id.nav_home) {
                 if (!(this instanceof HomePageActivity)) {
-                    intent = new Intent(HomePageActivity.this, HomePageActivity.class);
+                    intent = new Intent(this, HomePageActivity.class);
                 }
             } else if (itemId == R.id.nav_courses) {
-                intent = new Intent(HomePageActivity.this, CourseListActivity.class);
+                intent = new Intent(this, CourseListActivity.class);
             } else if (itemId == R.id.nav_my_courses) {
                 if (currentUserId == -1) {
-                    Toast.makeText(HomePageActivity.this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                    Toast.makeText(this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(this, LoginActivity.class);
                 } else {
-                    intent = new Intent(HomePageActivity.this, MyCoursesActivity.class);
+                    intent = new Intent(this, MyCoursesActivity.class);
                 }
             } else if (itemId == R.id.nav_profile) {
                 if (currentUserId == -1) {
-                    Toast.makeText(HomePageActivity.this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(HomePageActivity.this, LoginActivity.class);
+                    Toast.makeText(this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(this, LoginActivity.class);
                 } else {
-                    intent = new Intent(HomePageActivity.this, UserProfileActivity.class);
+                    intent = new Intent(this, UserProfileActivity.class);
                 }
             }
 

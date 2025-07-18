@@ -3,8 +3,10 @@ package com.example.onlinelearningapp.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,10 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
-import com.example.onlinelearningapp.R;
-import com.example.onlinelearningapp.Adapter.EnrollmentAdapter;
 import com.example.onlinelearningapp.Entity.Course;
-import com.example.onlinelearningapp.ViewModel.UserProfileViewModel; // Reusing UserProfileViewModel for enrolled courses
+import com.example.onlinelearningapp.R;
+import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -44,24 +45,29 @@ public class MyCoursesActivity extends AppCompatActivity {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
 
         if (currentUserId == -1) {
-            Toast.makeText(this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng đăng nhập để xem các khóa học của bạn.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
 
         rvMyEnrolledCourses.setLayoutManager(new LinearLayoutManager(this));
-        enrolledCourseAdapter = new CourseAdapter(new ArrayList<>(), course -> {
-            // Handle course click -> navigate to CourseDetailsActivity
-            Intent intent = new Intent(MyCoursesActivity.this, CourseDetailsActivity.class);
-            intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
-            intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
-            startActivity(intent);
-        }, (course, mode) -> {
-            // Handle Drop Out button click from MY_COURSES mode
-            if (mode == CourseAdapter.AdapterMode.MY_COURSES) {
-                showDropOutConfirmationDialog(course);
-            }
-        }, currentUserId, CourseAdapter.AdapterMode.MY_COURSES); // Set mode to MY_COURSES
+        enrolledCourseAdapter = new CourseAdapter(
+                new ArrayList<>(),
+                course -> {
+                    Intent intent = new Intent(MyCoursesActivity.this, CourseDetailsActivity.class);
+                    intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_ID, course.getCourseId());
+                    intent.putExtra(CourseDetailsActivity.EXTRA_COURSE_TITLE, course.getTitle());
+                    startActivity(intent);
+                },
+                (course, mode) -> {
+                    if (mode == CourseAdapter.AdapterMode.MY_COURSES) {
+                        showDropOutConfirmationDialog(course);
+                    }
+                },
+                currentUserId,
+                CourseAdapter.AdapterMode.MY_COURSES
+        );
         rvMyEnrolledCourses.setAdapter(enrolledCourseAdapter);
 
         userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
@@ -82,12 +88,12 @@ public class MyCoursesActivity extends AppCompatActivity {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
         if (currentUserId != -1) {
             userProfileViewModel.loadUserProfile(currentUserId);
-            // Also load enrollments to update the adapter's enrolledCourseIds set
             userProfileViewModel.loadEnrollments(currentUserId);
         } else {
             enrolledCourseAdapter.setCourses(new ArrayList<>());
-            enrolledCourseAdapter.setEnrolledCourseIds(new ArrayList<>()); // Clear enrolled status
+            enrolledCourseAdapter.setEnrolledCourseIds(new ArrayList<>());
         }
+
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_my_courses);
         }
@@ -95,17 +101,15 @@ public class MyCoursesActivity extends AppCompatActivity {
 
     private void showDropOutConfirmationDialog(Course course) {
         new AlertDialog.Builder(this)
-                .setTitle("Confirm Drop Out")
-                .setMessage("Are you sure you want to drop out of '" + course.getTitle() + "'?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    // User confirmed, perform drop out
+                .setTitle("Xác nhận hủy đăng ký")
+                .setMessage("Bạn có chắc chắn muốn hủy đăng ký khóa học '" + course.getTitle() + "' không?")
+                .setPositiveButton("Có", (dialog, which) -> {
                     userProfileViewModel.dropOutCourse(currentUserId, course.getCourseId());
-                    Toast.makeText(MyCoursesActivity.this, "Dropped out of " + course.getTitle(), Toast.LENGTH_SHORT).show();
-                    // Refresh the list of enrolled courses
+                    Toast.makeText(MyCoursesActivity.this, "Đã hủy đăng ký khóa học " + course.getTitle(), Toast.LENGTH_SHORT).show();
                     userProfileViewModel.loadUserProfile(currentUserId);
-                    userProfileViewModel.loadEnrollments(currentUserId); // Also refresh enrollments for other adapters
+                    userProfileViewModel.loadEnrollments(currentUserId);
                 })
-                .setNegativeButton("No", null) // User cancelled, do nothing
+                .setNegativeButton("Không", null)
                 .show();
     }
 
@@ -121,14 +125,11 @@ public class MyCoursesActivity extends AppCompatActivity {
                 } else if (itemId == R.id.nav_courses) {
                     intent = new Intent(MyCoursesActivity.this, CourseListActivity.class);
                 } else if (itemId == R.id.nav_my_courses) {
-                    if (!(this instanceof MyCoursesActivity)) {
-                        intent = new Intent(MyCoursesActivity.this, MyCoursesActivity.class);
-                    }
+                    return true;
                 } else if (itemId == R.id.nav_profile) {
                     if (currentUserId == -1) {
-                        Toast.makeText(MyCoursesActivity.this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyCoursesActivity.this, "Vui lòng đăng nhập để xem hồ sơ của bạn.", Toast.LENGTH_SHORT).show();
                         intent = new Intent(MyCoursesActivity.this, LoginActivity.class);
-                        startActivity(intent);
                     } else {
                         intent = new Intent(MyCoursesActivity.this, UserProfileActivity.class);
                     }
@@ -138,6 +139,7 @@ public class MyCoursesActivity extends AppCompatActivity {
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
                 }
+
                 return true;
             });
         }
