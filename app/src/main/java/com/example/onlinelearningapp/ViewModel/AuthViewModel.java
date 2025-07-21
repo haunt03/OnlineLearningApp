@@ -11,6 +11,7 @@ import com.example.onlinelearningapp.Entity.User;
 import com.example.onlinelearningapp.utils.EmailSender;
 
 import java.security.SecureRandom;
+import java.util.function.Consumer;
 
 public class AuthViewModel extends AndroidViewModel {
     private Repository repository;
@@ -75,31 +76,28 @@ public class AuthViewModel extends AndroidViewModel {
         });
     }
 
-    public void resetPassword(String email) {
-        // First, check if the email exists in our local Room DB
-        repository.getUserByEmail(email).observeForever(new Observer<User>() {
-            @Override
-            public void onChanged(User user) {
-                if (user != null) {
-                    // User found, generate a new password
-                    String newPassword = generateRandomPassword(8); // Generate an 8-character password
+    public void resetPassword(String email, Consumer<Boolean> callback) {
+        new Thread(() -> {
+            User user = repository.getUserByEmailSync(email); // FIXED
 
-                    // Update the user's password in Room DB
-                    user.setPassword(newPassword);
-                    repository.updateUser(user);
-
-                    // Send the new password to the user's email using JavaMail API
-                    EmailSender.sendResetPasswordEmail(email, newPassword, (success, message) -> {
-                        _resetPasswordMessage.postValue(message);
-                    });
-                } else {
-                    _resetPasswordMessage.postValue("Email not found in our records.");
-                }
-                // Remove the observer after checking
-                repository.getUserByEmail(email).removeObserver(this);
+            if (user == null) {
+                callback.accept(false);
+                return;
             }
-        });
+
+            String newPassword = generateRandomPassword(10); // FIXED: truyền length
+            boolean sent = EmailSender.send(email, "Your New Password", "Your new password is: " + newPassword); // FIXED
+
+            if (sent) {
+                user.setPassword(newPassword);
+                repository.updateUser(user); // FIXED
+            }
+
+            callback.accept(sent);
+        }).start();
     }
+
+
 
     public void updateUser(User user) {
         repository.updateUser(user);

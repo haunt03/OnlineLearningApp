@@ -33,4 +33,8 @@ public interface UserDao {
 
     @Query("DELETE FROM User")
     void deleteAllUsers();
+
+    @Query("SELECT * FROM user WHERE email = :email LIMIT 1")
+    User getUserByEmailSync(String email); // Hàm đồng bộ để dùng trong thread
+
 }
