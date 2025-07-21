@@ -180,5 +180,10 @@ public class Repository {
     public void updateProgress(Progress progress) {
         AppDatabase.databaseWriteExecutor.execute(() -> progressDao.updateProgress(progress));
     }
+
+    public User getUserByEmailSync(String email) {
+        return userDao.getUserByEmailSync(email); // DAO cần thêm hàm tương ứng
+    }
+
 }
 

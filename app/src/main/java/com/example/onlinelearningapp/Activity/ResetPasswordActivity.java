@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.ViewModel.AuthViewModel;
+import com.example.onlinelearningapp.utils.EmailThrottleManager;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class ResetPasswordActivity extends AppCompatActivity {
@@ -37,14 +38,6 @@ public class ResetPasswordActivity extends AppCompatActivity {
         btnResetPassword.setOnClickListener(v -> attemptResetPassword());
 
         tvBackToLogin.setOnClickListener(v -> finish()); // Go back to LoginActivity
-
-        // Observe reset password message from ViewModel - FIX APPLIED HERE
-        authViewModel.resetPasswordMessage.observe(this, message -> { // Changed from getResetPasswordMessage()
-            Toast.makeText(ResetPasswordActivity.this, message, Toast.LENGTH_LONG).show(); // Explicitly use ResetPasswordActivity.this for Context
-            if (message != null && message.contains("sent")) { // Added null check for message
-                finish(); // Go back to LoginActivity after simulated reset
-            }
-        });
     }
 
     private void attemptResetPassword() {
@@ -62,7 +55,21 @@ public class ResetPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        // Call ViewModel to perform password reset
-        authViewModel.resetPassword(email);
+        // Check throttle
+        if (!EmailThrottleManager.canSend(this)) {
+            Toast.makeText(this, "Please wait 2 minutes before requesting again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi ViewModel để gửi email, dùng callback để xử lý kết quả
+        authViewModel.resetPassword(email, isSuccess -> runOnUiThread(() -> {
+            if (isSuccess) {
+                EmailThrottleManager.updateLastSentTime(this); // Chỉ cập nhật sau khi gửi thành công
+                Toast.makeText(this, "New password sent to your email.", Toast.LENGTH_LONG).show();
+                finish(); // Quay lại màn hình login
+            } else {
+                Toast.makeText(this, "Failed to send email. Please try again.", Toast.LENGTH_LONG).show();
+            }
+        }));
     }
 }
