@@ -41,6 +41,9 @@ public class Repository {
     private QuizResultDao quizResultDao;
     private ProgressDao progressDao;
 
+    private LiveData<List<User>> activeUsers;
+    private LiveData<List<User>> inactiveUsers;
+
     public Repository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
         userDao = db.userDao();
@@ -75,15 +78,30 @@ public class Repository {
         AppDatabase.databaseWriteExecutor.execute(() -> userDao.updateUser(user));
     }
 
+    public LiveData<Integer> getUserCount() {
+        return userDao.getUserCount();
+    }
+
+    public LiveData<List<User>> getRecentUsers() {
+        return userDao.getRecentUsers();
+    }
+
     // --- Course operations ---
     public LiveData<List<Course>> getTop5CoursesByRecentCreation() {
         return courseDao.getTop5CoursesByRecentCreation();
     }
 
-    public LiveData<List<Course>> getAllCourses() {
-        return courseDao.getAllCourses();
+    public LiveData<Course> getCourseById(int courseId) {
+        return courseDao.getCourseById(courseId);
     }
 
+    public LiveData<Integer> getCourseCount() {
+        return courseDao.getCourseCount();
+    }
+
+    public LiveData<List<Course>> getInProgressCourses() {
+        return courseDao.getInProgressCourses();
+    }
 
     // --- Lesson operations ---
     public LiveData<List<Lesson>> getTop5NewestLessons() {
@@ -96,6 +114,14 @@ public class Repository {
 
     public LiveData<List<Lesson>> getLessonsByCourseId(int courseId) {
         return lessonDao.getLessonsByCourseId(courseId);
+    }
+
+    public LiveData<Integer> getLessonCount() {
+        return lessonDao.getLessonCount();
+    }
+
+    public LiveData<Integer> getLessonCountByCourseId(int courseId) {
+        return lessonDao.getLessonCountByCourseId(courseId);
     }
 
     public LiveData<Enrollment> getEnrollment(int userId, int courseId) {
@@ -133,6 +159,10 @@ public class Repository {
         return questionDao.getQuestionsByQuizId(quizId);
     }
 
+    public LiveData<Integer> getQuizCount() {
+        return quizDao.getQuizCount();
+    }
+
     // --- Option operations ---
     public LiveData<List<Option>> getOptionsByQuestionId(int questionId) {
         return optionDao.getOptionsByQuestionId(questionId);
@@ -160,6 +190,42 @@ public class Repository {
 
     public User getUserByEmailSync(String email) {
         return userDao.getUserByEmailSync(email); // DAO cần thêm hàm tương ứng
+    }
+
+    public LiveData<List<Lesson>> getInProgressLessons() {
+        return lessonDao.getInProgressLessons();
+    }
+
+    public LiveData<List<User>> getAllUsers() {
+        return userDao.getAllUsers();
+    }
+
+    public void deleteUser(User user) {
+        AppDatabase.databaseWriteExecutor.execute(() -> userDao.deleteUser(user));
+    }
+
+    public LiveData<List<User>> getAllUsersByRole() {
+        return userDao.getAllUsersByRole();
+    }
+
+    public LiveData<List<User>> getActiveUsers() {
+        return activeUsers;
+    }
+
+    public LiveData<List<User>> getInactiveUsers() {
+        return inactiveUsers;
+    }
+
+    public LiveData<List<Course>> getAllCourses() {
+        return courseDao.getAllCourses();
+    }
+
+    public void deleteCourse(Course course) {
+        AppDatabase.databaseWriteExecutor.execute(() -> courseDao.deleteCourse(course));
+    }
+
+    public LiveData<Integer> getEnrollmentCountForCourse(int courseId) {
+        return enrollmentDao.getEnrollmentCountForCourse(courseId);
     }
 
 }

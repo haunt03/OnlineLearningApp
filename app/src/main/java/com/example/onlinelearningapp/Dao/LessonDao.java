@@ -33,5 +33,16 @@ public interface LessonDao {
 
     @Query("DELETE FROM Lessons")
     void deleteAllLessons();
+
+    @Query("SELECT COUNT(LessonID) FROM Lessons")
+    LiveData<Integer> getLessonCount();
+
+    @Query("SELECT DISTINCT l.* FROM Lessons l " +
+            "INNER JOIN Progress p ON l.LessonID = p.LessonID " +
+            "WHERE p.Status = 'in_progress' LIMIT 5")
+    LiveData<List<Lesson>> getInProgressLessons();
+
+    @Query("SELECT COUNT(LessonID) FROM Lessons WHERE CourseID = :courseId")
+    LiveData<Integer> getLessonCountByCourseId(int courseId);
 }
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_active_learners"
+        android:title="Active learner"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_inactive_learners"
+        android:title="Inactive learner"
+        app:showAsAction="never" />
+</menu>
