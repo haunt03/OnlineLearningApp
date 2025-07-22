@@ -83,9 +83,5 @@ public class ViewUserDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
-
-
     }
 }

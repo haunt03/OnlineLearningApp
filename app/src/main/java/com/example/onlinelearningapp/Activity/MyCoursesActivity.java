@@ -45,7 +45,7 @@ public class MyCoursesActivity extends AppCompatActivity {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
 
         if (currentUserId == -1) {
-            Toast.makeText(this, "Vui lòng đăng nhập để xem các khóa học của bạn.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please login to view your courses.", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
@@ -101,15 +101,15 @@ public class MyCoursesActivity extends AppCompatActivity {
 
     private void showDropOutConfirmationDialog(Course course) {
         new AlertDialog.Builder(this)
-                .setTitle("Xác nhận hủy đăng ký")
-                .setMessage("Bạn có chắc chắn muốn hủy đăng ký khóa học '" + course.getTitle() + "' không?")
-                .setPositiveButton("Có", (dialog, which) -> {
+                .setTitle("Confirmation of leaving the course")
+                .setMessage("Are you sure you want to cancel your '" + course.getTitle() + "' registration?")
+                .setPositiveButton("Yes", (dialog, which) -> {
                     userProfileViewModel.dropOutCourse(currentUserId, course.getCourseId());
-                    Toast.makeText(MyCoursesActivity.this, "Đã hủy đăng ký khóa học " + course.getTitle(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyCoursesActivity.this, "Course registration cancelled " + course.getTitle(), Toast.LENGTH_SHORT).show();
                     userProfileViewModel.loadUserProfile(currentUserId);
                     userProfileViewModel.loadEnrollments(currentUserId);
                 })
-                .setNegativeButton("Không", null)
+                .setNegativeButton("No", null)
                 .show();
     }
 
@@ -128,7 +128,7 @@ public class MyCoursesActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.nav_profile) {
                     if (currentUserId == -1) {
-                        Toast.makeText(MyCoursesActivity.this, "Vui lòng đăng nhập để xem hồ sơ của bạn.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyCoursesActivity.this, "Please login to view your profile.", Toast.LENGTH_SHORT).show();
                         intent = new Intent(MyCoursesActivity.this, LoginActivity.class);
                     } else {
                         intent = new Intent(MyCoursesActivity.this, UserProfileActivity.class);

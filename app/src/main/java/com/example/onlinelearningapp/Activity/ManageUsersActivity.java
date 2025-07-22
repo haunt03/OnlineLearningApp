@@ -84,12 +84,12 @@ public class ManageUsersActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_active_learners) {
             viewModel.showActiveUsers();
-            Toast.makeText(this, "Hiển thị danh sách Active learners", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Show list Active learners", Toast.LENGTH_SHORT).show();
             Log.d("ManageUsers", "Selected: Active learners");
             return true;
         } else if (id == R.id.action_inactive_learners) {
             viewModel.showInactiveUsers();
-            Toast.makeText(this, "Hiển thị danh sách Inactive learners", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Show list Inactive learners", Toast.LENGTH_SHORT).show();
             Log.d("ManageUsers", "Selected: Inactive learners");
             return true;
         }
