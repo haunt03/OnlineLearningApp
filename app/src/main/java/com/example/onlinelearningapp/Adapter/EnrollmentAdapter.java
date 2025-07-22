@@ -45,8 +45,24 @@ public class EnrollmentAdapter extends RecyclerView.Adapter<EnrollmentAdapter.En
         Course course = enrolledCourses.get(position);
         holder.tvCourseTitle.setText(course.getTitle());
         holder.tvCourseDescription.setText(course.getDescription());
-        // For image, use placeholder for now
-        holder.ivCourseImage.setImageResource(R.drawable.placeholder_course);
+
+        // Xử lý hiển thị ảnh theo tên trong course.getImg()
+        String imageName = course.getImg();
+        if (imageName != null && imageName.contains(".")) {
+            imageName = imageName.substring(0, imageName.lastIndexOf('.'));
+        }
+
+        int imageResId = holder.itemView.getContext().getResources().getIdentifier(
+                imageName,
+                "drawable",
+                holder.itemView.getContext().getPackageName()
+        );
+
+        if (imageResId != 0) {
+            holder.ivCourseImage.setImageResource(imageResId);
+        } else {
+            holder.ivCourseImage.setImageResource(R.drawable.placeholder_course);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
@@ -54,6 +70,7 @@ public class EnrollmentAdapter extends RecyclerView.Adapter<EnrollmentAdapter.En
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

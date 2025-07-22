@@ -22,11 +22,11 @@ public class HomeViewModel extends AndroidViewModel {
         newestLessons = repository.getTop5NewestLessons();
     }
 
-    public LiveData<List<Course>> getTopCourses() {
+    public LiveData<List<Course>> getTop5CoursesByRecentCreation() {
         return topCourses;
     }
 
-    public LiveData<List<Lesson>> getNewestLessons() {
+    public LiveData<List<Lesson>> getTop5NewestLessons() {
         return newestLessons;
     }
 }

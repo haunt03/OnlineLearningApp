@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".Activity.HomePageActivity">
 
-    <!-- Toolbar hiển thị tiêu đề -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -21,52 +20,57 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Nội dung chính -->
-    <LinearLayout
-        android:id="@+id/content_layout"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:padding="16dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/tv_top_courses_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Top 5 Courses"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_top_courses"
+        <LinearLayout
+            android:id="@+id/content_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/tv_latest_lessons_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Lessons"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginTop="24dp" />
+            <TextView
+                android:id="@+id/tv_top_courses_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="New courses"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_latest_lessons"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginTop="8dp" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_top_courses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_latest_lessons_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="New Lessons"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-    <!-- Thanh điều hướng dưới -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_latest_lessons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
@@ -75,5 +79,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_navigation_menu" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
