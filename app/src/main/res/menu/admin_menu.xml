@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_manage_users"
+        android:title="Learner Management"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_manage_courses"
+        android:title="Course Management"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_manage_lessons"
+        android:title="Lesson Management"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_manage_progress"
+        android:title="Learner Progress"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_manage_test_results"
+        android:title="Test Results"
+        app:showAsAction="never" />
+</menu>

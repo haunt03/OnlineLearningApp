@@ -27,4 +27,7 @@ public interface QuizDao {
 
     @Query("DELETE FROM Quizzes")
     void deleteAllQuizzes();
+
+    @Query("SELECT COUNT(QuizID) FROM Quizzes")
+    LiveData<Integer> getQuizCount();
 }
