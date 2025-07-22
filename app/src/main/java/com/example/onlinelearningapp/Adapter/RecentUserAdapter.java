@@ -55,7 +55,7 @@ public class RecentUserAdapter extends RecyclerView.Adapter<RecentUserAdapter.Us
         return userList.size();
     }
 
-    static class UserViewHolder extends RecyclerView.ViewHolder {
+    public static class UserViewHolder extends RecyclerView.ViewHolder {
         TextView tvUserName, tvUserEmail;
 
         UserViewHolder(@NonNull View itemView) {

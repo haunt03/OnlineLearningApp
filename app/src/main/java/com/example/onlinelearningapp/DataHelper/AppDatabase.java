@@ -102,7 +102,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 long userId4 = userDao.insertUser(new User("ThiGD", "thigd@gmail.com", "Abcd1234@", 0)); // Learner
                 long userId5 = userDao.insertUser(new User("NhiLT", "nhilt@gmail.com", "Abcd1234@", 0)); // Learner
                 long userId6 = userDao.insertUser(new User("KhoaKD", "khoakd@gmail.com", "Abcd1234@", 0)); // Learner
-                long userId7 = userDao.insertUser(new User("Admin", "admin123@gmail.com", "admin123", 1)); // Admin
+                long userId7 = userDao.insertUser(new User("Admin", "admin123@gmail.com", "Admin123@", 1)); // Admin
 
                 // 📘 Sample Courses (10 courses for children's English)
                 long courseId1 = courseDao.insertCourse(new Course("English for Kindergarten", "Fun activities and basic words for young learners.", "course_kindergarten.png"));
