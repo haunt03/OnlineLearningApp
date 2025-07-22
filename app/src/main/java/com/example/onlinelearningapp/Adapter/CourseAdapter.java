@@ -103,7 +103,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             } else if (mode == AdapterMode.MY_COURSES) {
                 // In MyCoursesActivity, always show "Drop Out" for enrolled courses
                 holder.btnCourseAction.setVisibility(View.VISIBLE);
-                holder.btnCourseAction.setText("Drop Out");
+                holder.btnCourseAction.setText("Leave course");
                 holder.btnCourseAction.setOnClickListener(v -> {
                     if (actionButtonListener != null) {
                         actionButtonListener.onActionButtonClick(course, mode);

@@ -34,7 +34,7 @@ public class LessonOfCourseActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("List of Lessons");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setNavigationOnClickListener(v -> {
-            Log.d("ListofLessons", "Back button clicked, returning to Courses Management");
+            Log.d("List of Lessons", "Back button clicked, returning to Courses Management");
             finish();
         });
 
