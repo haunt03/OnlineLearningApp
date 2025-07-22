@@ -55,7 +55,6 @@ public class Repository {
         progressDao = db.progressDao();
     }
 
-    // --- User operations ---
     public LiveData<User> getUserByEmailAndPassword(String email, String password) {
         return userDao.getUserByEmailAndPassword(email, password);
     }
@@ -81,10 +80,6 @@ public class Repository {
         return courseDao.getTop5CoursesByRecentCreation();
     }
 
-    public LiveData<Course> getCourseById(int courseId) {
-        return courseDao.getCourseById(courseId);
-    }
-
     public LiveData<List<Course>> getAllCourses() {
         return courseDao.getAllCourses();
     }
@@ -101,11 +96,6 @@ public class Repository {
 
     public LiveData<List<Lesson>> getLessonsByCourseId(int courseId) {
         return lessonDao.getLessonsByCourseId(courseId);
-    }
-
-    // --- Enrollment operations ---
-    public LiveData<Integer> getEnrollmentCountForCourse(int courseId) {
-        return enrollmentDao.getEnrollmentCountForCourse(courseId);
     }
 
     public LiveData<Enrollment> getEnrollment(int userId, int courseId) {
@@ -166,19 +156,6 @@ public class Repository {
     // --- QuizResult operations ---
     public void insertQuizResult(QuizResult quizResult) {
         AppDatabase.databaseWriteExecutor.execute(() -> quizResultDao.insertQuizResult(quizResult));
-    }
-
-    // --- Progress operations ---
-    public LiveData<Progress> getUserProgressForLesson(int userId, int lessonId) {
-        return progressDao.getUserProgressForLesson(userId, lessonId);
-    }
-
-    public void insertProgress(Progress progress) {
-        AppDatabase.databaseWriteExecutor.execute(() -> progressDao.insertProgress(progress));
-    }
-
-    public void updateProgress(Progress progress) {
-        AppDatabase.databaseWriteExecutor.execute(() -> progressDao.updateProgress(progress));
     }
 
     public User getUserByEmailSync(String email) {

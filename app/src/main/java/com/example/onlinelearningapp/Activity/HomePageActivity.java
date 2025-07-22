@@ -51,7 +51,6 @@ public class HomePageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
 
-        // Set up Toolbar with title
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -147,13 +146,13 @@ public class HomePageActivity extends AppCompatActivity {
     }
 
     private void observeViewModel() {
-        homeViewModel.getTopCourses().observe(this, courses -> {
+        homeViewModel.getTop5CoursesByRecentCreation().observe(this, courses -> {
             if (courses != null) {
                 courseAdapter.setCourses(courses);
             }
         });
 
-        homeViewModel.getNewestLessons().observe(this, lessons -> {
+        homeViewModel.getTop5NewestLessons().observe(this, lessons -> {
             if (lessons != null) {
                 lessonAdapter.setLessons(lessons);
             }

@@ -45,8 +45,18 @@ public class LessonAdapter extends RecyclerView.Adapter<LessonAdapter.LessonView
         Lesson lesson = lessons.get(position);
         holder.tvLessonTitle.setText(lesson.getTitle());
         holder.tvLessonContentPreview.setText(lesson.getContent());
-        // For image, use placeholder for now
-        holder.ivLessonImage.setImageResource(R.drawable.placeholder_lesson);
+
+        // Set lesson image from drawable using image name
+        int imageResId = holder.itemView.getContext().getResources().getIdentifier(
+                lesson.getImg().split("\\.")[0],  // remove .png or .jpg extension if present
+                "drawable",
+                holder.itemView.getContext().getPackageName()
+        );
+        if (imageResId != 0) {
+            holder.ivLessonImage.setImageResource(imageResId);
+        } else {
+            holder.ivLessonImage.setImageResource(R.drawable.placeholder_lesson);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

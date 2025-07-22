@@ -1,10 +1,9 @@
-// app/src/main/java/com/example/onlinelearningapp/Adapter/QuestionNavigationAdapter.java
 package com.example.onlinelearningapp.Adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView; // Đã đổi lại thành TextView
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -87,11 +86,11 @@ public class QuestionNavigationAdapter extends RecyclerView.Adapter<QuestionNavi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvQuestionNavNumber; // Đã đổi lại thành TextView
+        TextView tvQuestionNavNumber;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvQuestionNavNumber = itemView.findViewById(R.id.tv_question_nav_number); // Tìm TextView
+            tvQuestionNavNumber = itemView.findViewById(R.id.tv_question_nav_number);
         }
     }
 }

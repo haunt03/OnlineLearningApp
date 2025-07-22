@@ -56,9 +56,25 @@ public class LessonDetailsActivity extends AppCompatActivity {
         lessonDetailsViewModel.getLesson().observe(this, lesson -> {
             if (lesson != null) {
                 tvLessonDetailsContent.setText(lesson.getContent());
-                // Set image, use placeholder for now
-                ivLessonDetailsImage.setImageResource(R.drawable.placeholder_lesson);
-            } else {
+
+                String imageName = lesson.getImg();
+                if (imageName != null && imageName.contains(".")) {
+                    imageName = imageName.substring(0, imageName.lastIndexOf('.'));
+                }
+
+                int imageResId = getResources().getIdentifier(
+                        imageName,
+                        "drawable",
+                        getPackageName()
+                );
+
+                if (imageResId != 0) {
+                    ivLessonDetailsImage.setImageResource(imageResId);
+                } else {
+                    ivLessonDetailsImage.setImageResource(R.drawable.placeholder_lesson);
+                }
+            }
+            else {
                 Toast.makeText(LessonDetailsActivity.this, "Failed to load lesson details.", Toast.LENGTH_SHORT).show();
             }
         });

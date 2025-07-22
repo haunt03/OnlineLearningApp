@@ -114,7 +114,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             holder.btnCourseAction.setVisibility(View.GONE); // Hide button if no user logged in
         }
 
-
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onCourseClick(course);

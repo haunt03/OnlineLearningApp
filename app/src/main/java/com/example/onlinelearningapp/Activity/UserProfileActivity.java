@@ -125,7 +125,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 return true;
             }
 
-            return false;
+            return true;
         });
     }
 
