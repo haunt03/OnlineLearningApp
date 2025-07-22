@@ -141,8 +141,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         } else if (id == R.id.menu_manage_progress) {
            // startActivity(new Intent(this, ManageProgressActivity.class));
             return true;
-        } else if (id == R.id.menu_manage_test_results) {
-           // startActivity(new Intent(this, ManageTestResultsActivity.class));
+        } else if (id == R.id.menu_logout) {
+            HomePageActivity.logout(AdminDashboardActivity.this);
+            finish(); // Đóng activity sau khi logout
             return true;
         }
         return super.onOptionsItemSelected(item);

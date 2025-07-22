@@ -43,7 +43,7 @@ public class InProgressCourseAdapter extends RecyclerView.Adapter<InProgressCour
         return courseList.size();
     }
 
-    static class CourseViewHolder extends RecyclerView.ViewHolder {
+    public static class CourseViewHolder extends RecyclerView.ViewHolder {
         TextView tvCourseTitle, tvCourseDescription;
 
         CourseViewHolder(@NonNull View itemView) {

@@ -43,6 +43,8 @@ public class HomePageActivity extends AppCompatActivity {
     public static final String KEY_LOGGED_IN_USER_ID = "loggedInUserId";
     public static final String KEY_LOGGED_IN_USER_NAME = "loggedInUserName";
 
+    public static final String KEY_LOGGED_IN_USER_ROLE = "loggedInUserRole";
+
     private int currentUserId = -1;
     private String currentUserName = "Guest";
 
@@ -92,11 +94,22 @@ public class HomePageActivity extends AppCompatActivity {
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
     }
 
+    private int currentUserRole = 0; // Default to student
+
     private void checkLoginStatus() {
         currentUserId = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ID, -1);
         currentUserName = sharedPreferences.getString(KEY_LOGGED_IN_USER_NAME, "Guest");
-        // No need to update TextView or Button (they are removed from layout)
+        currentUserRole = sharedPreferences.getInt(KEY_LOGGED_IN_USER_ROLE, 0);
+
+        // Nếu là admin (role = 1) => chuyển sang AdminDashboardActivity
+        if (currentUserRole == 1) {
+            Intent intent = new Intent(this, AdminDashboardActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
+
 
     private void setupRecyclerViews() {
         rvTopCourses.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -206,10 +219,12 @@ public class HomePageActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(KEY_LOGGED_IN_USER_ID);
         editor.remove(KEY_LOGGED_IN_USER_NAME);
+        editor.remove(KEY_LOGGED_IN_USER_ROLE);
         editor.apply();
 
         Intent intent = new Intent(context, HomePageActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
     }
+
 }

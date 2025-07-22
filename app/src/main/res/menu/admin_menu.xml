@@ -18,7 +18,7 @@
         android:title="Learner Progress"
         app:showAsAction="never" />
     <item
-        android:id="@+id/menu_manage_test_results"
-        android:title="Test Results"
+        android:id="@+id/menu_logout"
+        android:title="Logout"
         app:showAsAction="never" />
 </menu>

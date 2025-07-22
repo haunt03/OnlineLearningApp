@@ -46,7 +46,7 @@ public class InProgressLessonAdapter extends RecyclerView.Adapter<InProgressLess
         return lessonList.size();
     }
 
-    static class LessonViewHolder extends RecyclerView.ViewHolder {
+    public static class LessonViewHolder extends RecyclerView.ViewHolder {
         TextView tvLessonTitle, tvLessonDescription;
 
         LessonViewHolder(@NonNull View itemView) {
