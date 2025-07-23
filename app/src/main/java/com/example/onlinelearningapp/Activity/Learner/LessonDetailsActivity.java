@@ -1,4 +1,4 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Learner;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,11 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinelearningapp.R;
-import com.example.onlinelearningapp.Entity.Lesson;
-import com.example.onlinelearningapp.Entity.Quiz;
 import com.example.onlinelearningapp.ViewModel.LessonDetailsViewModel; // New ViewModel
 
-import java.util.List;
 
 public class LessonDetailsActivity extends AppCompatActivity {
 

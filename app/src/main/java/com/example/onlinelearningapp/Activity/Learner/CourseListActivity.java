@@ -1,20 +1,19 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Learner;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinelearningapp.Activity.LoginActivity;
 import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.AdminDashboardActivity">
+    tools:context=".Activity.Admin.AdminDashboardActivity">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar

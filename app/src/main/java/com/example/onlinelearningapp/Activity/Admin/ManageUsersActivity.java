@@ -1,4 +1,4 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Admin;
 
 import android.content.Intent;
 import android.os.Bundle;

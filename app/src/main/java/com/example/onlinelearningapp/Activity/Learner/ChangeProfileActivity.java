@@ -1,4 +1,4 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Learner;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

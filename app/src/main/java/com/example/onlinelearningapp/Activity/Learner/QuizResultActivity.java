@@ -1,5 +1,4 @@
-package com.example.onlinelearningapp.Activity;
-import android.app.Application;
+package com.example.onlinelearningapp.Activity.Learner;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -7,19 +6,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
-import com.example.onlinelearningapp.DataHelper.Repository;
-import com.example.onlinelearningapp.Entity.Answer;
-import com.example.onlinelearningapp.Entity.Option;
-import com.example.onlinelearningapp.Entity.Question;
-import com.example.onlinelearningapp.Entity.Quiz;
 import com.example.onlinelearningapp.R;
-
-import java.util.List;
 
 public class QuizResultActivity extends AppCompatActivity {
 

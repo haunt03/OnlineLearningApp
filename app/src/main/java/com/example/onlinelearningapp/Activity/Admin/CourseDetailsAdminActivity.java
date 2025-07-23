@@ -1,4 +1,4 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Admin;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +10,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.example.onlinelearningapp.Entity.Course;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.ViewModel.CourseDetailsAdminViewModel;
 

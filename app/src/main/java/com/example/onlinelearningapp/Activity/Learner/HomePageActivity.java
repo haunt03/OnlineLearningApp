@@ -1,31 +1,28 @@
-package com.example.onlinelearningapp.Activity;
+package com.example.onlinelearningapp.Activity.Learner;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.onlinelearningapp.Activity.Admin.AdminDashboardActivity;
+import com.example.onlinelearningapp.Activity.LoginActivity;
 import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
 import com.example.onlinelearningapp.Adapter.LessonAdapter;
-import com.example.onlinelearningapp.Entity.Course;
-import com.example.onlinelearningapp.Entity.Lesson;
 import com.example.onlinelearningapp.ViewModel.HomeViewModel;
 import com.example.onlinelearningapp.ViewModel.UserProfileViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class HomePageActivity extends AppCompatActivity {
 

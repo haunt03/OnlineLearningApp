@@ -14,7 +14,7 @@
         android:theme="@style/Theme.OnlineLearningApp"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.HomePageActivity"
+            android:name=".Activity.Learner.HomePageActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,20 +24,20 @@
         <activity android:name=".Activity.LoginActivity" />
         <activity android:name=".Activity.RegisterActivity" />
         <activity android:name=".Activity.ResetPasswordActivity" />
-        <activity android:name=".Activity.UserProfileActivity" />
-        <activity android:name=".Activity.ChangeProfileActivity" />
-        <activity android:name=".Activity.CourseListActivity" />
-        <activity android:name=".Activity.MyCoursesActivity" />
-        <activity android:name=".Activity.CourseDetailsActivity" />
-        <activity android:name=".Activity.LessonDetailsActivity" />
-        <activity android:name=".Activity.TakeQuizActivity" />
-        <activity android:name=".Activity.QuizResultActivity" />
-        <activity android:name=".Activity.QuizResultActivity" />
-        <activity android:name=".Activity.AdminDashboardActivity" />
-        <activity android:name=".Activity.ManageUsersActivity" />
-        <activity android:name=".Activity.ViewUserDetailActivity" />
-        <activity android:name=".Activity.ManageCoursesActivity" />
-        <activity android:name=".Activity.LessonOfCourseActivity"/>
-        <activity android:name=".Activity.CourseDetailsAdminActivity"/>
+        <activity android:name=".Activity.Learner.UserProfileActivity" />
+        <activity android:name=".Activity.Learner.ChangeProfileActivity" />
+        <activity android:name=".Activity.Learner.CourseListActivity" />
+        <activity android:name=".Activity.Learner.MyCoursesActivity" />
+        <activity android:name=".Activity.Learner.CourseDetailsActivity" />
+        <activity android:name=".Activity.Learner.LessonDetailsActivity" />
+        <activity android:name=".Activity.Learner.TakeQuizActivity" />
+        <activity android:name=".Activity.Learner.QuizResultActivity" />
+        <activity android:name=".Activity.Learner.QuizResultActivity" />
+        <activity android:name=".Activity.Admin.AdminDashboardActivity" />
+        <activity android:name=".Activity.Admin.ManageUsersActivity" />
+        <activity android:name=".Activity.Admin.ViewUserDetailActivity" />
+        <activity android:name=".Activity.Admin.ManageCoursesActivity" />
+        <activity android:name=".Activity.Admin.LessonOfCourseActivity"/>
+        <activity android:name=".Activity.Admin.CourseDetailsAdminActivity"/>
     </application>
 </manifest>
