@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar; // Import this
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinelearningapp.Activity.Admin.AdminDashboardActivity;
@@ -36,6 +39,16 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // --- Toolbar Setup ---
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Show back button
+            getSupportActionBar().setDisplayShowHomeEnabled(true); // Make it visible
+            getSupportActionBar().setTitle("Online Learning App"); // Set the title here
+        }
+        // --- End Toolbar Setup ---
 
         // Initialize views
         etEmail = findViewById(R.id.et_email);
@@ -73,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(KEY_LOGGED_IN_USER_ID, user.getUserId());
                 editor.putString(HomePageActivity.KEY_LOGGED_IN_USER_NAME, user.getName());
-                editor.putInt(KEY_LOGGED_IN_USER_ROLE, user.getRole());  // <== Lưu role
+                editor.putInt(KEY_LOGGED_IN_USER_ROLE, user.getRole());
                 editor.apply();
 
                 // Điều hướng theo role
@@ -90,6 +103,15 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void attemptLogin() {
@@ -115,16 +137,4 @@ public class LoginActivity extends AppCompatActivity {
         authViewModel.login(email, password);
     }
 
-    public static void logout(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.remove(KEY_LOGGED_IN_USER_ID);
-        editor.remove(KEY_LOGGED_IN_USER_NAME);
-        editor.remove(KEY_LOGGED_IN_USER_ROLE);
-        editor.apply();
-
-        Intent intent = new Intent(context, HomePageActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        context.startActivity(intent);
-    }
 }
