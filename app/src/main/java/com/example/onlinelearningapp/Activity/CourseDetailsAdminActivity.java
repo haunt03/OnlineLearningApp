@@ -1,6 +1,9 @@
 package com.example.onlinelearningapp.Activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -62,7 +65,19 @@ public class CourseDetailsAdminActivity extends AppCompatActivity {
             if (course != null) {
                 tvCourseTitle.setText(course.getTitle());
                 tvCourseDescription.setText(course.getDescription());
-                tvCourseStatus.setText("Status: " + course.getStatus());
+                // Set status with colored "active" or "inactive"
+                String statusText = "Status: " + (course.getStatus() != null ? course.getStatus() : "N/A");
+                SpannableString spannableStatus = new SpannableString(statusText);
+                if (course.getStatus() != null) {
+                    int start = "Status: ".length();
+                    int end = statusText.length();
+                    if (course.getStatus().equals("active")) {
+                        spannableStatus.setSpan(new ForegroundColorSpan(Color.GREEN), start, end, 0);
+                    } else if (course.getStatus().equals("inactive")) {
+                        spannableStatus.setSpan(new ForegroundColorSpan(Color.RED), start, end, 0);
+                    }
+                }
+                tvCourseStatus.setText(spannableStatus);
                 tvCourseCreatedAt.setText("Created At: " + (course.getCreatedAt() != null ? course.getCreatedAt() : "N/A"));
 
                 // Load image from database's img field using Glide

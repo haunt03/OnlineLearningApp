@@ -48,4 +48,8 @@ public class ManageUsersViewModel extends AndroidViewModel {
     public LiveData<User> getUserById(int userId) {
         return repository.getUserById(userId); // Fixed to return LiveData<User>
     }
+
+    public void updateUser(User user) {
+        repository.updateUser(user);
+    }
 }

@@ -4,6 +4,9 @@
         android:id="@+id/action_view_course_details"
         android:title="View Course Details" />
     <item
+        android:id="@+id/action_update_course"
+        android:title="Update Course Information"/>
+    <item
         android:id="@+id/action_delete_course"
         android:title="Delete Course" />
 </menu>

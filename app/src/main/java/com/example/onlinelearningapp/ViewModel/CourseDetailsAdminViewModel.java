@@ -28,4 +28,12 @@ public class CourseDetailsAdminViewModel extends AndroidViewModel {
     public LiveData<Integer> getEnrollmentCountForCourse(int courseId) {
         return repository.getEnrollmentCountForCourse(courseId);
     }
+
+    public void updateCourse(Course course) {
+        repository.updateCourse(course);
+    }
+
+    public Repository getRepository() {
+        return repository;
+    }
 }
