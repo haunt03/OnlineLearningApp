@@ -14,7 +14,7 @@
         android:theme="@style/Theme.OnlineLearningApp"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.HomePageActivity"
+            android:name=".Activity.AdminDashboardActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,12 +32,12 @@
         <activity android:name=".Activity.LessonDetailsActivity" />
         <activity android:name=".Activity.TakeQuizActivity" />
         <activity android:name=".Activity.QuizResultActivity" />
-        <activity android:name=".Activity.QuizResultActivity" />
-        <activity android:name=".Activity.AdminDashboardActivity" />
+        <activity android:name=".Activity.HomePageActivity" />
         <activity android:name=".Activity.ManageUsersActivity" />
         <activity android:name=".Activity.ViewUserDetailActivity" />
         <activity android:name=".Activity.ManageCoursesActivity" />
         <activity android:name=".Activity.LessonOfCourseActivity"/>
         <activity android:name=".Activity.CourseDetailsAdminActivity"/>
+        <activity android:name=".Activity.UpdateInfoCourseActivity"/>
     </application>
 </manifest>

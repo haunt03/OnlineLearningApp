@@ -228,5 +228,9 @@ public class Repository {
         return enrollmentDao.getEnrollmentCountForCourse(courseId);
     }
 
+    public void updateCourse(Course course) {
+        AppDatabase.databaseWriteExecutor.execute(() -> courseDao.updateCourse(course));
+    }
+
 }
 

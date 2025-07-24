@@ -114,6 +114,13 @@ public class ManageCoursesActivity extends AppCompatActivity {
             intent.putExtra("courseId", selectedCourse.getCourseId());
             startActivity(intent);
             return true;
+        } else if (itemId == R.id.action_update_course) {
+            Log.d(TAG, "View Course Details selected for: " + selectedCourse.getTitle());
+            Intent intent = new Intent(this, UpdateInfoCourseActivity.class);
+            intent.putExtra("courseId", selectedCourse.getCourseId());
+            startActivity(intent);
+            return true;
+        // them code vao day
         } else if (itemId == R.id.action_delete_course) {
             new AlertDialog.Builder(this)
                     .setTitle("Confirm Deletion")
