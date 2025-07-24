@@ -1,6 +1,5 @@
 package com.example.onlinelearningapp.Activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import androidx.appcompat.widget.Toolbar; // Import this
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.onlinelearningapp.Activity.Admin.AdminDashboardActivity;
-import com.example.onlinelearningapp.Activity.Learner.HomePageActivity;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.ViewModel.AuthViewModel;
 import com.google.android.material.textfield.TextInputEditText;

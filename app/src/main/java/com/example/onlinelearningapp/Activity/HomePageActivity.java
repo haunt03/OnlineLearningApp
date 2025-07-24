@@ -1,4 +1,4 @@
-package com.example.onlinelearningapp.Activity.Learner;
+package com.example.onlinelearningapp.Activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +13,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.onlinelearningapp.Activity.Admin.AdminDashboardActivity;
-import com.example.onlinelearningapp.Activity.LoginActivity;
+import com.example.onlinelearningapp.Activity.Learner.CourseDetailsActivity;
+import com.example.onlinelearningapp.Activity.Learner.CourseListActivity;
+import com.example.onlinelearningapp.Activity.Learner.LessonDetailsActivity;
+import com.example.onlinelearningapp.Activity.Learner.MyCoursesActivity;
+import com.example.onlinelearningapp.Activity.Learner.UserProfileActivity;
 import com.example.onlinelearningapp.Entity.Enrollment;
 import com.example.onlinelearningapp.R;
 import com.example.onlinelearningapp.Adapter.CourseAdapter;
@@ -156,7 +160,7 @@ public class HomePageActivity extends AppCompatActivity {
     }
 
     private void observeViewModel() {
-        homeViewModel.getTop5CoursesByRecentCreation().observe(this, courses -> {
+        homeViewModel.getTop5MostEnrolledCourses().observe(this, courses -> {
             if (courses != null) {
                 courseAdapter.setCourses(courses);
             }

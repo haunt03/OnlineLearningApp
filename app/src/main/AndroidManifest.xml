@@ -14,7 +14,7 @@
         android:theme="@style/Theme.OnlineLearningApp"
         tools:targetApi="31">
         <activity
-            android:name=".Activity.Learner.HomePageActivity"
+            android:name=".Activity.HomePageActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

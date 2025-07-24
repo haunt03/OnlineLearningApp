@@ -18,11 +18,11 @@ public class HomeViewModel extends AndroidViewModel {
     public HomeViewModel(Application application) {
         super(application);
         repository = new Repository(application);
-        topCourses = repository.getTop5CoursesByRecentCreation();
+        topCourses = repository.getTop5MostEnrolledCourses();
         newestLessons = repository.getTop5NewestLessons();
     }
 
-    public LiveData<List<Course>> getTop5CoursesByRecentCreation() {
+    public LiveData<List<Course>> getTop5MostEnrolledCourses() {
         return topCourses;
     }
 

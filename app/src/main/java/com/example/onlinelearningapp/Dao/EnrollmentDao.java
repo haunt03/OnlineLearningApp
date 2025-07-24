@@ -39,4 +39,14 @@ public interface EnrollmentDao {
 
     @Query("DELETE FROM Enrollments")
     void deleteAllEnrollments();
+
+    @Transaction
+    @Query("SELECT C.* FROM Courses C " +
+            "INNER JOIN (SELECT CourseID, COUNT(*) as totalEnrollments " +
+            "            FROM Enrollments " +
+            "            GROUP BY CourseID " +
+            "            ORDER BY totalEnrollments DESC " +
+            "            LIMIT 5) E ON C.CourseID = E.CourseID")
+    LiveData<List<Course>> getTop5MostEnrolledCourses();
+
 }

@@ -91,6 +91,11 @@ public class Repository {
         return courseDao.getTop5CoursesByRecentCreation();
     }
 
+    public LiveData<List<Course>> getTop5MostEnrolledCourses() {
+        return enrollmentDao.getTop5MostEnrolledCourses();
+    }
+
+
     public LiveData<Course> getCourseById(int courseId) {
         return courseDao.getCourseById(courseId);
     }

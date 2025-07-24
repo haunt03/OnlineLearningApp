@@ -27,7 +27,7 @@ public interface CourseDao {
     LiveData<Course> getCourseById(int courseId);
 
     @Query("SELECT * FROM Courses ORDER BY CreatedAt DESC LIMIT 5")
-    LiveData<List<Course>> getTop5CoursesByRecentCreation(); // Placeholder for "most participated"
+    LiveData<List<Course>> getTop5CoursesByRecentCreation();
 
     // ADD THIS METHOD
     @Query("SELECT * FROM Courses")
